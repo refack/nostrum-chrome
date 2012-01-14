@@ -1,31 +1,25 @@
 {
-  // Required
-  "name": "NostrumBlock",
-  "version": "1.1",
-
-  // Recommended
-  "description": "Flash/Silvelight block for Chrome. Whitelist enabled.",
-  "icons": {
-      "16": "icons/icon16.png",
-      "32": "icons/icon32.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
-   },
-  //"default_locale": "en",
-
-  "page_action": {
-      "default_icon": "icons/blocked.png",
-      "popup": "content/popup.html"
-   },
-
-  // Add any of these that you need
-  "background_page": "content/background.html",
-  "content_scripts": [ {
+   "background_page": "content/background.html",
+   "content_scripts": [ {
       "all_frames": true,
       "js": [ "content/content.js" ],
       "matches": [ "http://*/*", "https://*/*" ],
       "run_at": "document_start"
    } ],
-  "options_page": "options/options.html",
-  "permissions": [ "tabs", "http://*/*" ]
+   "description": "Flash/Silvelight block for Chrome. Whitelist enabled.",
+   "icons": {
+      "128": "icons/icon128.png",
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png"
+   },
+
+   "name": "NostrumBlock",
+   "options_page": "options/options.html",
+   "page_action": {
+      "default_icon": "icons/blocked.png",
+      "popup": "content/popup.html"
+   },
+   "permissions": [ "tabs", "http://*/*" ],
+   "version": "1.1"
 }
