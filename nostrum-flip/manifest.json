@@ -1,0 +1,26 @@
+{
+    "name": "Empeeric - Nostrum flip",
+    "version": "2",
+    "description": "Empeeric's fix to Hebrew typed with english keyboard, and vise-versa",
+    "update_url": "http://clients2.google.com/service/update2/crx",
+    "browser_action": {
+        "default_icon": "icon19.png"
+    },
+    "icons": {
+        "128": "icon128.png",
+        "48": "icon48.png"
+    },
+    "permissions": [
+        "tabs",
+        "http://*/",
+        "https://*/",
+        "contextMenus"
+    ],
+    "background_page" : "background.html",
+    "content_scripts": [ {
+      "all_frames": true,
+      "js": [ "nostum-flip-content.js" ],
+      "matches": [ "http://*/*", "https://*/*" ],
+      "run_at": "document_start"
+    } ]
+}
