@@ -3,7 +3,7 @@
    "browser_action": {
       "default_icon": "icon19.png"
    },
-   "description": "Empeeric's fix to Hebrew typed with english keyboard, and vise-versa",
+   "description": "Empeeric's fix to Hebrew typed with english keyboard, and vise-versa.\nNow with a short-cut key ctrl+alt+e.",
    "icons": {
       "128": "icon128.png",
       "48": "icon48.png"
@@ -16,5 +16,5 @@
       "matches": [ "http://*/*", "https://*/*" ],
       "run_at": "document_start"
     } ],
-   "version": "2.0"
+   "version": "3.0"
 }
