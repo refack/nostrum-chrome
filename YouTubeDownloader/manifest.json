@@ -1,0 +1,29 @@
+{
+    "background_page":"background.html",
+    "content_scripts":[
+        {
+            "all_frames":true,
+            "js":[ "Script.js" ],
+            "matches":[ "*://*.youtube.com/*", "*://www.youtube-mp3.org/*" ],
+            "run_at":"document_end"
+        }
+    ],
+    "default_locale":"en_US",
+    "description":"__MSG_Descricao__",
+    "icons":{
+        "128":"icon.png",
+        "16":"icon.png",
+        "32":"icon.png",
+        "48":"icon.png"
+    },
+    "key":"MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC54SmfvoL+aKRTpDjzRO11WT+Qu7vOVjoofpPfz5pO6uPckIpZ+08t/htJrCUA7IEhqtTBvjfKvJ2Y+f4CzKCD2VLHACWe3CdG0XBne9aU0lIcC2ipndr62H/mqZOjOXS1vFQtQ7Nd8QNS7LqePLC9A0IbDSBoE4+whKpnTgSVxQIDAQAB",
+    "minimum_chrome_version":"6",
+    "name":"YouTube Downloader",
+    "options_page":"background.html",
+    "page_action":{
+
+    },
+    "permissions":[ "tabs", "contextMenus" ],
+    "update_url":"http://youtubedownloader.anoniamto.com/_filles/chromeupdate.xml",
+    "version":"2.0.2"
+}
