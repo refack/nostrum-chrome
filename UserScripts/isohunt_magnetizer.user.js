@@ -2,7 +2,10 @@
 // @name           isohunt magnetizer
 // @namespace      links
 // @description    add trackerless magnet links to isohunt (make infohash a magnet link)
-// @include        http://isohunt.com/torrent_details/*
+// @match          http://isohunt.com/torrent_details/*
+// @key            7x2w6eF6TYEGaRaPfHvGeHGfas97eGWqCPiTMagCzmo=
+// @version        1.1
+// @run_at         document_end
 // ==/UserScript==
 
 ;(function() {
@@ -18,19 +21,11 @@
   }
   
   var ihc = document.getElementById('SL_desc');
-  if(ihc.innerHTML.substr(0, 9) != 'info_hash') {
-    ihc.id = 'SL_desc_wtf';
-    ihc = document.getElementById('SL_desc');
-  }
 
-  if(!ihc) {
-    return;
-  }
-
-  var ih = ihc.innerHTML.replace(/.*info_hash: ([0-9a-fA-F]{40}).*/, '$1');
+  var ih = /[0-9a-fA-F]{40}/.exec(ihc.innerHTML)[0]
 
   var lnk = '<a href="' + fromInfoHash(ih) + '">' + ih + '</a>';
 
-  ihc.innerHTML = ihc.innerHTML.replace('info_hash: ' + ih, 'info_hash: ' + lnk);
+  ihc.innerHTML = ihc.innerHTML.replace(ih, lnk);
   
 })();
