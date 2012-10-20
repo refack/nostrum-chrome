@@ -95,7 +95,7 @@
                 if (localStorage.PageAction) {
                     chrome.pageAction.setIcon({tabId:sender.tab.id, path:'icon.png'});
                     chrome.pageAction.setPopup({tabId:sender.tab.id, popup:'PageActions.html'});
-                    chrome.pageAction.setTitle({tabId:sender.tab.id, title:chrome.i18n.getMessage("Botao_alt")});
+                    chrome.pageAction.setTitle({tabId:sender.tab.id, title:'Download this video!'});
                     chrome.pageAction.show(sender.tab.id)
                 }
             } else if (request.title == 'RequestDownloadLinks') {
