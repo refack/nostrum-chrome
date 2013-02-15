@@ -1,0 +1,197 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:tns="http://www.google.com/2005/gml/b" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://www.google.com/2005/gml/b" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="include">
+        <xs:complexType>
+            <xs:attribute name="data" type="xs:string" use="optional" />
+            <xs:attribute name="name" type="xs:string" use="required" />
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="skin" type="xs:string" />
+    <xs:element name="section">
+        <xs:complexType>
+            <xs:sequence minOccurs="0">
+                <xs:element maxOccurs="unbounded" name="widget">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element maxOccurs="unbounded" name="includable">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element minOccurs="0" name="loop">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:ul" />
+                                                </xs:sequence>
+                                                <xs:attribute name="values" type="xs:string" use="required" />
+                                                <xs:attribute name="var" type="xs:string" use="required" />
+                                            </xs:complexType>
+                                        </xs:element>
+                                        <xs:element minOccurs="0" xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:select" />
+                                        <xs:element minOccurs="0" xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:ul" />
+                                        <xs:element minOccurs="0" xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:a" />
+                                        <xs:element minOccurs="0" xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:h4" />
+                                        <xs:element minOccurs="0" xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:span" />
+                                        <xs:element minOccurs="0" name="if">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element minOccurs="0" xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:h2" />
+                                                    <xs:element minOccurs="0" name="if">
+                                                        <xs:complexType>
+                                                            <xs:sequence>
+                                                                <xs:choice maxOccurs="unbounded">
+                                                                    <xs:element xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:a" />
+                                                                    <xs:element name="else" />
+                                                                    <xs:element xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:div" />
+                                                                </xs:choice>
+                                                            </xs:sequence>
+                                                            <xs:attribute name="cond" type="xs:string" use="required" />
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                    <xs:element minOccurs="0" name="else" />
+                                                    <xs:element minOccurs="0" maxOccurs="unbounded" xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:div" />
+                                                    <xs:element minOccurs="0" xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:dl" />
+                                                    <xs:element minOccurs="0" xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:span" />
+                                                </xs:sequence>
+                                                <xs:attribute name="cond" type="xs:string" use="required" />
+                                            </xs:complexType>
+                                        </xs:element>
+                                        <xs:element minOccurs="0" xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:p" />
+                                        <xs:element minOccurs="0" maxOccurs="unbounded" xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:div" />
+                                        <xs:element minOccurs="0" maxOccurs="unbounded" name="include">
+                                            <xs:complexType>
+                                                <xs:attribute name="name" type="xs:string" use="required" />
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute name="id" type="xs:string" use="required" />
+                                    <xs:attribute name="var" type="xs:string" use="optional" />
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                        <xs:attribute name="id" type="xs:string" use="required" />
+                        <xs:attribute name="locked" type="xs:boolean" use="required" />
+                        <xs:attribute name="title" type="xs:string" use="required" />
+                        <xs:attribute name="type" type="xs:string" use="required" />
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute name="class" type="xs:string" use="required" />
+            <xs:attribute name="id" type="xs:string" use="required" />
+            <xs:attribute name="maxwidgets" type="xs:unsignedByte" use="optional" />
+            <xs:attribute name="showaddelement" type="xs:string" use="optional" />
+            <xs:attribute name="preferred" type="xs:string" use="optional" />
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="if">
+        <xs:complexType mixed="true">
+            <xs:sequence>
+                <xs:choice maxOccurs="unbounded">
+                    <xs:element xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:span" />
+                    <xs:element xmlns:data="http://www.google.com/2005/gml/data" ref="data:title" />
+                    <xs:element name="else" />
+                    <xs:element xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:a" />
+                    <xs:element name="if">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:a" />
+                                <xs:element minOccurs="0" name="else" />
+                                <xs:element minOccurs="0" xmlns:xhtml9="http://www.google.com/2005/gml/data" ref="xhtml9:post.title" />
+                            </xs:sequence>
+                            <xs:attribute name="cond" type="xs:string" use="required" />
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:h3" />
+                    <xs:element xmlns:data="http://www.google.com/2005/gml/data" ref="data:top.authorLabel" />
+                    <xs:element xmlns:data="http://www.google.com/2005/gml/data" ref="data:post.author" />
+                    <xs:element xmlns:data="http://www.google.com/2005/gml/data" ref="data:top.timestampLabel" />
+                    <xs:element xmlns:data="http://www.google.com/2005/gml/data" ref="data:top.commentLabel" />
+                    <xs:element xmlns:data="http://www.google.com/2005/gml/data" ref="data:post.numComments" />
+                    <xs:element xmlns:data="http://www.google.com/2005/gml/data" ref="data:top.commentLabelPlural" />
+                    <xs:element xmlns:data="http://www.google.com/2005/gml/data" ref="data:postLabelsLabel" />
+                    <xs:element name="loop">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:a" />
+                                <xs:element name="if">
+                                    <xs:complexType>
+                                        <xs:simpleContent>
+                                            <xs:extension base="xs:string">
+                                                <xs:attribute name="cond" type="xs:string" use="required" />
+                                            </xs:extension>
+                                        </xs:simpleContent>
+                                    </xs:complexType>
+                                </xs:element>
+                            </xs:sequence>
+                            <xs:attribute name="values" type="xs:string" use="required" />
+                            <xs:attribute name="var" type="xs:string" use="required" />
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:h4" />
+                    <xs:element xmlns:data="http://www.google.com/2005/gml/data" ref="data:commentLabel" />
+                    <xs:element xmlns:data="http://www.google.com/2005/gml/data" ref="data:commentLabelPlural" />
+                    <xs:element xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:dl" />
+                    <xs:element xmlns:data="http://www.google.com/2005/gml/data" ref="data:comment.author" />
+                    <xs:element xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:p" />
+                    <xs:element name="include">
+                        <xs:complexType>
+                            <xs:attribute name="data" type="xs:string" use="required" />
+                            <xs:attribute name="name" type="xs:string" use="required" />
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:ul" />
+                    <xs:element xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:dd" />
+                    <xs:element xmlns:xhtml="http://www.google.com/2005/gml/data" ref="xhtml:label.name" />
+                </xs:choice>
+            </xs:sequence>
+            <xs:attribute name="cond" type="xs:string" use="required" />
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="loop">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:choice maxOccurs="unbounded">
+                    <xs:element name="if">
+                        <xs:complexType>
+                            <xs:sequence>
+                                <xs:element minOccurs="0" name="if">
+                                    <xs:complexType>
+                                        <xs:sequence>
+                                            <xs:element name="include">
+                                                <xs:complexType>
+                                                    <xs:attribute name="data" type="xs:string" use="required" />
+                                                    <xs:attribute name="name" type="xs:string" use="required" />
+                                                </xs:complexType>
+                                            </xs:element>
+                                        </xs:sequence>
+                                        <xs:attribute name="cond" type="xs:string" use="required" />
+                                    </xs:complexType>
+                                </xs:element>
+                                <xs:element minOccurs="0" name="include">
+                                    <xs:complexType>
+                                        <xs:attribute name="data" type="xs:string" use="required" />
+                                        <xs:attribute name="name" type="xs:string" use="required" />
+                                    </xs:complexType>
+                                </xs:element>
+                                <xs:element minOccurs="0" xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:h2" />
+                            </xs:sequence>
+                            <xs:attribute name="cond" type="xs:string" use="required" />
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element name="include">
+                        <xs:complexType>
+                            <xs:attribute name="data" type="xs:string" use="required" />
+                            <xs:attribute name="name" type="xs:string" use="required" />
+                        </xs:complexType>
+                    </xs:element>
+                    <xs:element xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:dt" />
+                    <xs:element xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:dd" />
+                    <xs:element xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:div" />
+                    <xs:element xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:a" />
+                    <xs:element xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:li" />
+                    <xs:element xmlns:xhtml="http://www.w3.org/1999/xhtml" ref="xhtml:option" />
+                </xs:choice>
+            </xs:sequence>
+            <xs:attribute name="values" type="xs:string" use="required" />
+            <xs:attribute name="var" type="xs:string" use="required" />
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
