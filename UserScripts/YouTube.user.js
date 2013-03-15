@@ -18,8 +18,8 @@
 (function () {
   var FORMAT_LABEL={'18':'MP4 360p','22':'MP4 720p (HD)','34':'FLV 360p','35':'FLV 480p','37':'MP4 1080p (HD)','38':'MP4 4K (HD)','43':'WebM 360p','44':'WebM 480p','45':'WebM 720p (HD)','46':'WebM 1080p (HD)'};
   var FORMAT_TYPE={'18':'mp4','22':'mp4','34':'flv','35':'flv','37':'mp4','38':'mp4','43':'webm','44':'webm','45':'webm','46':'webm'};
-  var FORMAT_ORDER=['18','34','43','35','44','22','45','37','46','38'];
-  var FORMAT_RULE={'flv':'max','mp4':'all','webm':'none'};
+  var FORMAT_ORDER=['18','43','44','22','45','37','46','38','34','35'];
+  var FORMAT_RULE={'flv':'none','mp4':'all','webm':'none'};
   // all=display all versions, max=only highest quality version, none=no version  
   // the default settings show all MP4 videos, the highest quality FLV and no WebM
  var BUTTON_TEXT={'ar':'تنزيل','cs':'Stáhnout','de':'Herunterladen','en':'Download','es':'Descargar','fr':'Télécharger','it':'Scarica','pt':'Baixar','ro':'Descărcați','ru':'Скачать'};
