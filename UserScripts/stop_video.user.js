@@ -1,14 +1,20 @@
 // ==UserScript==
 // @name		    Disable HTML5 Video Autoplay
 // @description		All HTML5 videos autoplay disabled
-// @Author		    Refael Ackermann
-// @include		    *youtube.com
+// @author		    Refael Ackermann
+// @match           *://*/*
 // @version         1.0.0
 // ==/UserScript==
 
-(function() {
+function _stopPlay() {
 	var autoplay = document.getElementsByTagName('video');
     for(i = 0; i < autoplay.length; i++) {
-        autoplay[i].removeAttribute('autoplay');			
+        autoplay[i].autoplay = false;
+        autoplay[i].pause();
     }
-})();
+};
+_stopPlay();
+setTimeout(_stopPlay, 50);
+setTimeout(_stopPlay, 150);
+setTimeout(_stopPlay, 250);
+setTimeout(_stopPlay, 500);

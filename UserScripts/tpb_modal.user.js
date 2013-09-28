@@ -2,6 +2,7 @@
 // @name           TPB tweaks
 // @description    Add afew tweaks to TPB
 // @match          http://thepiratebay.se/*
+// @match          http://thepiratebay.sx/*
 // @version        1.0
 // ==/UserScript==
 
