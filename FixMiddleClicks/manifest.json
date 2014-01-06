@@ -1,0 +1,23 @@
+{
+    "background": {
+        "scripts": ["background.html.js"],
+        "persistent": false
+    },
+    "content_scripts": [ {
+      "all_frames": true,
+      "js": [ "handleclicks.js" ],
+      "matches": [ "http://*/*", "https://*/*" ],
+      "run_at": "document_start"
+    } ],
+    "description": "fix middle click behavior for a lot of pages (also ctrl+left)",
+    "icons": {
+      "128": "middle128.png",
+      "48": "middle48.png"
+    },
+    "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDJt5PyyKqBQLcy8DEHDuQipDjF9MczGLZuEk0zyJOt5ox1DABkLaGn6Lr8EdtRXtAKDYwNzSZgeXrP3xh8JdXap+GGZRONwET35wslizZSqxM5kxgwotnr0kdguxQoM/8Be4HN7CfjPWDYTGJoFzQSx0P+ZMpVC6CfiSDsKBm8sQIDAQAB",
+    "name": "middle button new tab",
+    "options_page": "options.html",
+    "update_url": "http://clients2.google.com/service/update2/crx",
+    "version": "1.0.0",
+    "manifest_version": 2
+}
