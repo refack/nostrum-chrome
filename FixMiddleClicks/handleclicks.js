@@ -7,10 +7,7 @@
     function isMiddleSimple(e){ return e.button===1; }
     function isMiddleRegular(e){ return e.ctrlKey && e.button===0 || isMiddleSimple(e); }
         
-    chrome.extension.sendRequest("o", run);
-
-    function run(o){
-        if(o.skip){ return; }
+    chrome.runtime.sendMessage("get o", function(o) {
         var isMiddle = o.ctrlLeft ? isMiddleRegular : isMiddleSimple;
         var color = o.color;
         
@@ -23,5 +20,5 @@
             link.style.color = color;
             e.stopPropagation();
         }
-    }
+    });
 })();

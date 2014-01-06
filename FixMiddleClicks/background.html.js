@@ -20,3 +20,10 @@ function saveOptions(){
 function clone(o){
 	return JSON.parse(JSON.stringify(o));
 }
+
+chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+        if (request === "get o") sendResponse(cachedO);
+    }
+);
+    
