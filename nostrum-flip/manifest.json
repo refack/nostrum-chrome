@@ -1,20 +1,17 @@
 {
-   "background_page": "background.html",
-   "browser_action": {
-      "default_icon": "icon19.png"
-   },
-   "description": "Empeeric's fix to Hebrew typed with english keyboard, and vise-versa.\nNow with a short-cut key ctrl+alt+e.",
-   "icons": {
-      "128": "icon128.png",
-      "48": "icon48.png"
-   },
-   "name": "Empeeric - Nostrum flip",
-   "permissions": [ "tabs", "http://*/", "https://*/", "contextMenus" ],
+    "description": "Empeeric's fix to Hebrew typed with english keyboard, and vise-versa.\nNow with a short-cut key ctrl+alt+e.",
+    "icons": {
+        "128": "icon128.png",
+        "48": "icon48.png"
+    },
+    "name": "Empeeric - Nostrum flip",
+    "permissions": [ "tabs", "http://*/", "https://*/" ],
     "content_scripts": [ {
       "all_frames": true,
-      "js": [ "nostum-flip-content.js" ],
+      "js": [ "nostrum-flip-content.js" ],
       "matches": [ "http://*/*", "https://*/*" ],
       "run_at": "document_start"
     } ],
-   "version": "3.0"
+    "version": "4.0.0",
+    "manifest_version": 2
 }
