@@ -1,0 +1,25 @@
+{
+    "name" : "Emphesized",
+    "version" : "1.0.0",
+    "theme" : {
+        "images" : {
+            "theme_frame" : "images\/theme_frame.png",
+            "theme_toolbar" : "images\/theme_toolbar.png",
+            "theme_tab_background" : "images\/theme_tab_background.png"
+        },
+        "colors" : {
+            "frame" : [176, 0, 184],
+            "toolbar" : [206, 206, 206],
+            "tab_text" : [16, 90, 40],
+            "tab_background_text" : [16, 90, 40],
+            "bookmark_text" : [16, 90, 40],
+            "ntp_background" : [255, 255, 255],
+            "ntp_text" : [16, 90, 40],
+            "button_background" : [176, 0, 184, 0.31]
+        },
+        "tints" : {
+            "buttons" : [0, 0, 0.81]
+        }
+    },
+    "manifest_version" : 2
+}
