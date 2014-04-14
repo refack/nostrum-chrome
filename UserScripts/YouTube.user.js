@@ -323,7 +323,7 @@ function run() {
     if (typeof(unsafeWindow)!='undefined' && unsafeWindow===window) { // built-in Chrome
       var divElem = document.createElement('div');
       divElem.setAttribute('onclick', 'return window;');
-      usw=divElem.onclick(); // from https://github.com/greasemonkey/greasemonkey/issues/1614
+      if (divElem.onclic) kusw=divElem.onclick(); // from https://github.com/greasemonkey/greasemonkey/issues/1614
     }
     return usw; 
   }
