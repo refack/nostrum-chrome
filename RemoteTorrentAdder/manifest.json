@@ -1,0 +1,28 @@
+{
+   "background": {
+      "scripts": [ "miscapis/background.js", "miscapis/base64.js", "webuiapis/VuzeSwingUI.js", "webuiapis/TorrentfluxWebUI.js", "webuiapis/TransmissionWebUI.js", "webuiapis/uTorrentWebUI.js", "webuiapis/ruTorrentWebUI.js", "webuiapis/VuzeHTMLUI.js", "webuiapis/VuzeRemoteUI.js", "webuiapis/BuffaloWebUI.js", "webuiapis/qBittorrentWebUI.js", "webuiapis/DelugeWebUI.js", "webuiapis/pyrtWebUI.js" ]
+   },
+   "content_scripts": [ {
+      "css": [ "themes/jquery.fancybox.css" ],
+      "js": [ "miscapis/jquery-1.7.1.min.js", "miscapis/jquery-ui-1.8.16.custom.min.js", "miscapis/jquery.fancybox.js", "miscapis/content_rta.js" ],
+      "matches": [ "*://*/*" ],
+      "run_at": "document_end"
+   } ],
+   "description": "Add torrents using several programs' WebUIs",
+   "icons": {
+      "128": "icons/BitTorrent128.png",
+      "16": "icons/BitTorrent16.png",
+      "48": "icons/BitTorrent48.png"
+   },
+   "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDEMA08rag17gk4HuRlAaT4NSiJu9G156vNhp831ygt1F2F60vW4mZje8FWdhyCU33mkHsX7r9X7kqgY24cMYBMyqigl98281flnUUA0Y4ZE81cfZ0LFPsTXpisPxoSLU0zj5vQMVtTwid61ArzbHuXVl6p7P+E6b2wvs0lQiit7wIDAQAB",
+   "manifest_version": 2,
+   "name": "Remote Torrent Adder",
+   "options_page": "options.html",
+   "page_action": {
+      "default_icon": "icons/BitTorrent16.png"
+   },
+   "permissions": [ "*://*/*", "contextMenus", "notifications", "tabs" ],
+   "update_url": "http://clients2.google.com/service/update2/crx",
+   "version": "1.1.10",
+   "web_accessible_resources": [ "icons/BitTorrent16.png", "icons/BitTorrent48.png", "icons/BitTorrent128.png" ]
+}
