@@ -1,0 +1,21 @@
+{
+   "content_scripts" : [
+      {
+         "exclude_globs" : [],
+         "exclude_matches" : [],
+         "include_globs" : [
+            "http://www.youtube.com/watch\\?*",
+            "https://www.youtube.com/watch\\?*"
+         ],
+         "js" : [ "script.js" ],
+         "matches" : [ "http://www.youtube.com/watch?*", "https://www.youtube.com/watch?*" ],
+         "run_at" : "document_idle"
+      }
+   ],
+   "converted_from_user_script" : true,
+   "description" : "Adds a button that lets you download YouTube videos.",
+   "key" : "7mlm37Li8un91YCT9/KpfawQX6Yim1MsR1guGHMb+Jo=",
+   "manifest_version" : 2,
+   "name" : "Download YouTube Videos as MP4",
+   "version" : "1.5.6"
+}

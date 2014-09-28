@@ -1,0 +1,18 @@
+{
+   "content_scripts" : [
+      {
+         "exclude_globs" : [],
+         "exclude_matches" : [],
+         "include_globs" : [],
+         "js" : [ "script.js" ],
+         "matches" : [ "https://mail.google.com/mail/*view=pt*" ],
+         "run_at" : "document_idle"
+      }
+   ],
+   "converted_from_user_script" : true,
+   "description" : "",
+   "key" : "MDZyH0L5B4p1iX4Ctr0SPOQsIQUK5YS+gVdqveNyo20=",
+   "manifest_version" : 2,
+   "name" : "Hide the Gmail header on print",
+   "version" : "1.0"
+}
