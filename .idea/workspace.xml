@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1565f40a-14a5-4653-b1fe-9c4891a3cf45" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/UnpackedExtensions/DLUtube/script.js" />
       <change type="DELETED" beforePath="C:\bin\Chrome\.gitignore" afterPath="" />
       <change type="DELETED" beforePath="C:\bin\Chrome\BlockNostrum.crx" afterPath="" />
       <change type="DELETED" beforePath="C:\bin\Chrome\BlockNostrum.pem" afterPath="" />
