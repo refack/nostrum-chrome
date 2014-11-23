@@ -6,11 +6,329 @@
 // ==/UserScript==
 
 
+
+
 /*!
  * tablesort v2.0.1 (2014-11-06)
  * http://tristen.ca/tablesort/demo
  * Copyright (c) 2014 ; Licensed MIT
 */
-!function(){function a(a,b){if(!a)throw new Error("Element not found");if("TABLE"!==a.tagName)throw new Error("Element must be a table");this.init(a,b||{})}a.prototype={init:function(a,d){var e,f=this;if(this.thead=!1,this.options=d,a.rows&&a.rows.length>0&&(a.tHead&&a.tHead.rows.length>0?(e=a.tHead.rows[a.tHead.rows.length-1],f.thead=!0):e=a.rows[0]),e){for(var g,h=function(){f.current&&f.current!==this&&(f.current.classList.contains(b)?f.current.classList.remove(b):f.current.classList.contains(c)&&f.current.classList.remove(c)),f.current=this,f.sortTable(this)},i=0;i<e.cells.length;i++){var j=e.cells[i];j.classList.contains("no-sort")||(j.classList.add("sort-header"),j.addEventListener("click",h,!1),j.classList.contains("sort-default")&&(g=j))}g&&(f.current=g,f.sortTable(g,!0))}},getFirstDataRowIndex:function(){return this.thead?0:1},sortTable:function(a,d){var e,f=this,m=a.cellIndex,n=i(a,"table"),o="",p=f.getFirstDataRowIndex();if(!(n.rows.length<=1)){for(;""===o&&p<n.tBodies[0].rows.length;)o=j(n.tBodies[0].rows[p].cells[m]),o=o.trim(),("<!--"===o.substr(0,4)||0===o.length)&&(o=""),p++;if(""!==o){var q=function(a,b){var c=j(a.cells[f.col]).toLowerCase(),d=j(b.cells[f.col]).toLowerCase();return c===d?0:d>c?1:-1},r=function(a,b){var c=j(a.cells[f.col]),d=j(b.cells[f.col]);return c=l(c),d=l(d),k(d,c)},s=function(a,b){var c=j(a.cells[f.col]).toLowerCase(),d=j(b.cells[f.col]).toLowerCase();return h(d)-h(c)};e=o.match(/^-?[£\x24Û¢´€]?\d+\s*([,\.]\d{0,2})/)||o.match(/^-?\d+\s*([,\.]\d{0,2})?[£\x24Û¢´€]/)||o.match(/^-?(\d)*-?([,\.]){0,1}-?(\d)+([E,e][\-+][\d]+)?%?$/)?r:g(o)?s:q,this.col=m;var t,u=[],v={},w=0;for(p=0;p<n.tBodies.length;p++)for(t=0;t<n.tBodies[p].rows.length;t++){var x=n.tBodies[p].rows[t];x.classList.contains("no-sort")?v[w]=x:u.push({tr:x,index:w}),w++}var y=f.options.descending?c:b,z=f.options.descending?b:c;d?a.classList.contains(y)||a.classList.contains(z)||a.classList.add(y):a.classList.contains(y)?(a.classList.remove(y),a.classList.add(z)):(a.classList.remove(z),a.classList.add(y));var A=function(a){return function(b,c){var d=a(b.tr,c.tr);return 0===d?b.index-c.index:d}},B=function(a){return function(b,c){var d=a(b.tr,c.tr);return 0===d?c.index-b.index:d}};a.classList.contains(c)?(u.sort(B(e)),u.reverse()):u.sort(A(e));var C=0;for(p=0;w>p;p++){var D;v[p]?(D=v[p],C++):D=u[p-C].tr,n.tBodies[0].appendChild(D)}}}},refresh:function(){void 0!==this.current&&this.sortTable(this.current,!0)}};var b="sort-up",c="sort-down",d=/(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\.?\,?\s*/i,e=/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/,f=/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/i,g=function(a){return-1!==(-1!==a.search(d)||-1!==a.search(e)||a.search(-1!==f))&&!isNaN(h(a))},h=function(a){return a=a.replace(/\-/g,"/"),a=a.replace(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2})/,"$1/$2/$3"),new Date(a).getTime()},i=function(a,b){return null===a?null:1===a.nodeType&&a.tagName.toLowerCase()===b.toLowerCase()?a:i(a.parentNode,b)},j=function(a){var b=this;if("string"==typeof a||"undefined"==typeof a)return a;var c=a.getAttribute("data-sort")||"";if(c)return c;if(a.textContent)return a.textContent;if(a.innerText)return a.innerText;for(var d=a.childNodes,e=d.length,f=0;e>f;f++)switch(d[f].nodeType){case 1:c+=b.getInnerText(d[f]);break;case 3:c+=d[f].nodeValue}return c},k=function(a,b){var c=parseFloat(a),d=parseFloat(b);return a=isNaN(c)?0:c,b=isNaN(d)?0:d,a-b},l=function(a){return a.replace(/[^\-?0-9.]/g,"")};"undefined"!=typeof module&&module.exports?module.exports=a:window.Tablesort=a}();
+;(function() {
+    function Tablesort(el, options) {
+        if (!el) throw new Error('Element not found');
+        if (el.tagName !== 'TABLE') throw new Error('Element must be a table');
+        this.init(el, options || {});
+    }
+
+    Tablesort.prototype = {
+
+        init: function(el, options) {
+            var that = this,
+                firstRow;
+            this.thead = false;
+            this.options = options;
+
+            if (el.rows && el.rows.length > 0) {
+                if (el.tHead && el.tHead.rows.length > 0) {
+                    firstRow = el.tHead.rows[el.tHead.rows.length - 1];
+                    that.thead = true;
+                } else {
+                    firstRow = el.rows[0];
+                }
+            }
+
+            if (!firstRow) return;
+
+            var onClick = function() {
+                if (that.current && that.current !== this) {
+                    if (that.current.classList.contains(classSortUp)) {
+                        that.current.classList.remove(classSortUp);
+                    }
+                    else if (that.current.classList.contains(classSortDown)) {
+                        that.current.classList.remove(classSortDown);
+                    }
+                }
+
+                that.current = this;
+                that.sortTable(this);
+            };
+
+            var defaultSort;
+
+            // Assume first row is the header and attach a click handler to each.
+            for (var i = 0; i < firstRow.cells.length; i++) {
+                var cell = firstRow.cells[i];
+                if (!cell.classList.contains('no-sort')) {
+                    cell.classList.add('sort-header');
+                    cell.addEventListener('click', onClick, false);
+
+                    if (cell.classList.contains('sort-default')) {
+                        defaultSort = cell;
+                    }
+                }
+            }
+
+            if (defaultSort) {
+                that.current = defaultSort;
+                that.sortTable(defaultSort, true);
+            }
+        },
+
+        getFirstDataRowIndex: function() {
+            // If table does not have a <thead>, assume that first row is
+            // a header and skip it.
+            if (!this.thead) {
+                return 1;
+            } else {
+                return 0;
+            }
+        },
+
+        sortTable: function(header, update) {
+            var that = this,
+                column = header.cellIndex,
+                sortFunction,
+                t = getParent(header, 'table'),
+                item = '',
+                i = that.getFirstDataRowIndex();
+
+            if (t.rows.length <= 1) return;
+
+            while (item === '' && i < t.tBodies[0].rows.length) {
+                item = getInnerText(t.tBodies[0].rows[i].cells[column]);
+                item = item.trim();
+                // Exclude cell values where commented out HTML exists
+                if (item.substr(0, 4) === '<!--' || item.length === 0) {
+                    item = '';
+                }
+                i++;
+            }
+
+            if (item === '') return;
+
+            // Possible sortFunction scenarios
+            var sortCaseInsensitive = function(a, b) {
+                var aa = getInnerText(a.cells[that.col]).toLowerCase(),
+                    bb = getInnerText(b.cells[that.col]).toLowerCase();
+
+                if (aa === bb) return 0;
+                if (aa < bb) return 1;
+
+                return -1;
+            };
+
+            var sortNumber = function(a, b) {
+                var aa = getInnerText(a.cells[that.col]),
+                    bb = getInnerText(b.cells[that.col]);
+
+                aa = cleanNumber(aa);
+                bb = cleanNumber(bb);
+                return compareNumber(bb, aa);
+            };
+
+            var sortDate = function(a, b) {
+                var aa = getInnerText(a.cells[that.col]).toLowerCase(),
+                    bb = getInnerText(b.cells[that.col]).toLowerCase();
+                return parseDate(bb) - parseDate(aa);
+            };
+
+            // Sort as number if a currency key exists or number
+            if (item.match(/^-?[£\x24Û¢´€]?\d+\s*([,\.]\d{0,2})/) || // prefixed currency
+                item.match(/^-?\d+\s*([,\.]\d{0,2})?[£\x24Û¢´€]/) || // suffixed currency
+                item.match(/^-?(\d)*-?([,\.]){0,1}-?(\d)+([E,e][\-+][\d]+)?%?$/) // number
+               ) {
+                sortFunction = sortNumber;
+            } else if (testDate(item)) {
+                sortFunction = sortDate;
+            } else {
+                sortFunction = sortCaseInsensitive;
+            }
+
+            this.col = column;
+            var newRows = [],
+                noSorts = {},
+                j,
+                totalRows = 0;
+
+            for (i = 0; i < t.tBodies.length; i++) {
+                for (j = 0; j < t.tBodies[i].rows.length; j++) {
+                    var tr = t.tBodies[i].rows[j];
+                    if (tr.classList.contains('no-sort')) {
+                        // keep no-sorts in separate list to be able to insert
+                        // them back at their original position later
+                        noSorts[totalRows] = tr;
+                    } else {
+                        // Save the index for stable sorting
+                        newRows.push({
+                            tr: tr,
+                            index: totalRows
+                        });
+                    }
+                    totalRows++;
+                }
+            }
+
+            var sortUp   = that.options.descending ? classSortDown : classSortUp,
+                sortDown = that.options.descending ? classSortUp : classSortDown;
+
+            if (!update) {
+                if (header.classList.contains(sortUp)) {
+                    header.classList.remove(sortUp);
+                    header.classList.add(sortDown);
+                } else {
+                    header.classList.remove(sortDown);
+                    header.classList.add(sortUp);
+                }
+            } else if (!header.classList.contains(sortUp) && !header.classList.contains(sortDown)) {
+                header.classList.add(sortUp);
+            }
+
+            // Make a stable sort function
+            var stabilize = function(sort) {
+                return function(a, b) {
+                    var unstableResult = sort(a.tr, b.tr);
+                    if (unstableResult === 0) {
+                        return a.index - b.index;
+                    }
+                    return unstableResult;
+                };
+            };
+
+            // Make an `anti-stable` sort function. If two elements are equal
+            // under the original sort function, then there relative order is
+            // reversed.
+            var antiStabilize = function(sort) {
+                return function(a, b) {
+                    var unstableResult = sort(a.tr, b.tr);
+                    if (unstableResult === 0) {
+                        return b.index - a.index;
+                    }
+                    return unstableResult;
+                };
+            };
+
+            // Before we append should we reverse the new array or not?
+            // If we reverse, the sort needs to be `anti-stable` so that
+            // the double negatives cancel out
+            if (header.classList.contains(classSortDown)) {
+                newRows.sort(antiStabilize(sortFunction));
+                newRows.reverse();
+            } else {
+                newRows.sort(stabilize(sortFunction));
+            }
+
+            // append rows that already exist rather than creating new ones
+            var noSortsSoFar = 0;
+            for (i = 0; i < totalRows; i++) {
+                var whatToInsert;
+                if (noSorts[i]) {
+                    // We have a no-sort row for this position, insert it here.
+                    whatToInsert = noSorts[i];
+                    noSortsSoFar++;
+                } else {
+                    whatToInsert = newRows[i - noSortsSoFar].tr;
+                }
+                // appendChild(x) moves x if already present somewhere else in the DOM
+                t.tBodies[0].appendChild(whatToInsert);
+            }
+        },
+
+        refresh: function() {
+            if (this.current !== undefined) {
+                this.sortTable(this.current, true);
+            }
+        }
+    };
+
+    var classSortUp   = 'sort-up',
+        classSortDown = 'sort-down';
+
+    var week       = /(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\.?\,?\s*/i,
+        commonDate = /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/,
+        month      = /(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/i;
+
+    function testDate(date) {
+        return (
+            date.search(week) !== -1 ||
+            date.search(commonDate) !== -1  ||
+            date.search(month !== -1)
+        ) !== -1 && !isNaN(parseDate(date));
+    }
+
+    function parseDate(date) {
+        date = date.replace(/\-/g, '/');
+        date = date.replace(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2})/, '$1/$2/$3'); // format before getTime
+        return new Date(date).getTime();
+    }
+
+    function getParent(el, pTagName) {
+        if (el === null) {
+            return null;
+        } else if (el.nodeType === 1 && el.tagName.toLowerCase() === pTagName.toLowerCase()) {
+            return el;
+        } else {
+            return getParent(el.parentNode, pTagName);
+        }
+    }
+
+    function getInnerText(el) {
+        var that = this;
+
+        if (typeof el === 'string' || typeof el === 'undefined') return el;
+
+        var str = el.getAttribute('data-sort') || el.textContent || el.innerText || '';
+
+        if (!str) {
+          var cs = el.childNodes,
+              l = cs.length;
+
+          for (var i = 0; i < l; i++) {
+              switch (cs[i].nodeType) {
+                  case 1:
+                      // ELEMENT_NODE
+                      str += that.getInnerText(cs[i]);
+                  break;
+                  case 3:
+                      // TEXT_NODE
+                      str += cs[i].nodeValue;
+                  break;
+              }
+          }
+        }
+
+        var today = new Date();
+        var yest = new Date();yest.setDate(today.getDate() - 1);
+        var tdStr = ('0' + (today.getMonth() + 1)).substr(-2) + '-' + ('0' + (today.getDate() + 1)).substr(-2);
+        var ydStr = ('0' + (yest.getMonth() + 1)).substr(-2) + '-' + ('0' + (yest.getDate() + 1)).substr(-2);
+        str = str.replace('Today', tdStr).replace('Y-day', ydStr);
+
+        return str;
+    }
+
+    function compareNumber(a, b) {
+        var aa = parseFloat(a),
+            bb = parseFloat(b);
+
+        a = isNaN(aa) ? 0 : aa;
+        b = isNaN(bb) ? 0 : bb;
+        return a - b;
+    }
+
+    function cleanNumber(i) {
+        return i.replace(/[^\-?0-9.]/g, '');
+    }
+
+    if (typeof module !== 'undefined' && module.exports) {
+        module.exports = Tablesort;
+    } else {
+        window.Tablesort = Tablesort;
+    }
+})();
+/*!
+ * end tablesort
+*/
+
+
+
 
 var tlb = new Tablesort(document.getElementById('searchResult'));
