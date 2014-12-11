@@ -1,12 +1,11 @@
 // ==UserScript==
-// @name           isohunt magnetizer
+// @name           torrentz magnetizer
 // @namespace      links
 // @description    add trackerless magnet links to isohunt (make infohash a magnet link)
-// @match          *://isohunt.com/*
-// @match          *://ca.isohunt.com/*
-// @match          *://*.isohunt.com/*
+// @match          *://*.torrentz.eu/*
+// @match          *://*.torrentz.com/*
 // @key            7x2w6eF6TYEGaRaPfHvGeHGfas97eGWqCPiTMagCzmo=
-// @version        1.2
+// @version        1.3
 // @run_at         document_end
 // ==/UserScript==
 

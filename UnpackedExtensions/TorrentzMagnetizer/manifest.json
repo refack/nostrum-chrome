@@ -1,0 +1,16 @@
+{
+   "content_scripts": [ {
+      "exclude_globs": [  ],
+      "exclude_matches": [  ],
+      "include_globs": [  ],
+      "js": [ "script.js" ],
+      "matches": [ "*://*.torrentz.com/*", "*://torrentz.com/*", "*://*.torrentz.eu/*", "*://torrentz.eu/*" ],
+      "run_at": "document_start"
+   } ],
+   "converted_from_user_script": true,
+   "description": "add trackerless magnet links to torrentz (make infohash a magnet link)",
+   "key": "fxBeTbQKeb16YzdlLOIgQyVnVANhMGXzJ7081y6le0s=",
+   "manifest_version" : 2,
+   "name": "torrentz Magnetizer",
+   "version": "1.3"
+}
