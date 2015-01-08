@@ -80,7 +80,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 		if(request.server) {
 			server = request.server;
 		}
-		RTA.getTorrent(server, request.url, request.label, request.dir);
+		RTA.getTorrent(server, request.url, request.label, request.dir, request.cookie);
 		sendResponse({});
 	} else if(request.action == "getStorageData") {
 		sendResponse(localStorage);

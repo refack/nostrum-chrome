@@ -11,7 +11,7 @@ XMLHttpRequest.prototype.sendAsBinary = function(datastr) {
 }
 
 
-RTA.dispatchTorrent = function(server, data, name, label, dir) {
+RTA.dispatchTorrent = function(server, data, name, label, dir, cookie) {
 	switch (server.client) {
 		case "Vuze SwingUI":
 			RTA.clients.vuzeSwingAdder(server, data); break;
@@ -20,7 +20,7 @@ RTA.dispatchTorrent = function(server, data, name, label, dir) {
 		case "Transmission WebUI":
 			RTA.clients.transmissionAdder(server, data); break;
 		case "uTorrent WebUI":
-			RTA.clients.uTorrentAdder(server, data); break;
+			RTA.clients.uTorrentAdder(server, data, cookie); break;
 		case "ruTorrent WebUI":
 			RTA.clients.ruTorrentAdder(server, data, label, dir); break;
 		case "Vuze HTML WebUI":
@@ -42,12 +42,34 @@ RTA.dispatchTorrent = function(server, data, name, label, dir) {
 }
 
 
-RTA.getTorrent = function(server, url, label, dir) {
+RTA.getTorrent = function(server, url, label, dir, cookie) {
+	if(url.substring(0,7) == "magnet:") {
 	var magnetURL;
-	var reGroups = /(?:\:|\/)([a-zA-Z0-9]{20,50})/.exec(url) || [];
-  var hash = reGroups[1] && reGroups[1].toUpperCase();
+	var reGroups = /(?:\:\/{0,2})([a-zA-Z0-9]{20,50})/.exec(url) || [];
+	var hash = reGroups[1] && reGroups[1].toUpperCase();
 	var getURI = hash ? ('http://torcache.net/torrent/' + hash + '.torrent') : url;
-  var ret = RTA.dispatchTorrent(server, getURI, "", label, dir);
+	var ret = RTA.dispatchTorrent(server, getURI, "", label, dir, cookie);
+	} else {
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", url, true);
+		xhr.overrideMimeType("text/plain; charset=x-user-defined");
+		xhr.onreadystatechange = function(data) {
+			if(xhr.readyState == 4 && xhr.status == 200) {
+				if(url.match(/\/([^\/]+.torrent)$/)) {
+					name = url.match(/\/([^\/]+.torrent)$/)[1];
+				} else {
+					name = "file.torrent";
+				}
+				
+				RTA.dispatchTorrent(server, xhr.responseText, name, label, dir);
+			} else if(xhr.readyState == 4 && xhr.status < 99) {
+				RTA.displayResponse("Connection failed", "The server sent an irregular HTTP error code: " + xhr.status, true);
+			} else if(xhr.readyState == 4 && xhr.status != 200) {
+				RTA.displayResponse("Connection failed", "The server sent the following HTTP error code: " + xhr.status, true);
+			}
+		};
+		xhr.send(null);
+	}
 }
 
 
@@ -110,7 +132,7 @@ RTA.constructContextMenu = function() {
 
 RTA.genericOnClick = function(info, tab) {
 	var serverId = menuItemIndexToServerIndex[info.menuItemId];
-  var servers = RTA.getServers();
+	var servers = RTA.getServers();
 	if(serverId === -1) { // send to all servers
 		for(var i in servers) {
 			RTA.getTorrent(servers[i], info.linkUrl);
@@ -127,12 +149,12 @@ RTA.genericOnClick = function(info, tab) {
 
 
 RTA.getServers = function() {
-  if (!RTA._serversCached) {
-    RTA._serversCached = JSON.parse(localStorage.getItem("servers"))
-      .map(function (srv) {
-        srv.utorrentrelativepath = srv.utorrentrelativepath || '';
-        return srv;
-      });
-  }
-  return RTA._serversCached;
+	if (!RTA._serversCached) {
+		RTA._serversCached = JSON.parse(localStorage.getItem("servers"))
+			.map(function (srv) {
+				srv.utorrentrelativepath = srv.utorrentrelativepath || '';
+				return srv;
+			});
+	}
+	return RTA._serversCached;
 }

@@ -6,15 +6,16 @@ chrome.extension.sendRequest({"action": "getStorageData"}, function(response) {
 	var rL = document.getElementsByTagName('a');
 	res = response["linkmatches"].split("~");
 	res.push("magnet:");
+	res.push("dht:");
 	if(response["linkmatches"] != "") {
 		for(lkey in rL) {
-      for(mkey in res) {
-        if(rL[lkey].href && rL[lkey].href.match(new RegExp(res[mkey], "g"))) {
-          links.push(rL[lkey]);
-          break;
-        }
-      }
-    }
+			for(mkey in res) {
+				if(rL[lkey].href && rL[lkey].href.match(new RegExp(res[mkey], "g"))) {
+					links.push(rL[lkey]);
+					break;
+				}
+			}
+		}
 	}
 	
 	// handle forms
@@ -44,16 +45,16 @@ chrome.extension.sendRequest({"action": "getStorageData"}, function(response) {
 				links[key].addEventListener('click', function(e) {
 					if (e.ctrlKey || e.shiftKey || e.altKey || e.button===1) return;
 
-          e.preventDefault();
-          var url = this.href;
-          var servers = JSON.parse(response.servers);
-          var server = servers[0];
+					e.preventDefault();
+					var url = this.href;
+					var servers = JSON.parse(response.servers);
+					var server = servers[0];
 
-          if (server["rutorrentdirlabelask"] && server["client"]=="ruTorrent WebUI") {
-            showLabelDirChooser(response, url);
-          } else {
-            chrome.extension.sendRequest({"action": "addTorrent", "url": url, "label": undefined, "dir": undefined});
-          }
+					if (server["rutorrentdirlabelask"] && server["client"]=="ruTorrent WebUI") {
+						showLabelDirChooser(response, url);
+					} else {
+						chrome.extension.sendRequest({"action": "addTorrent", "url": url, "label": undefined, "dir": undefined, "cookie": document.cookie});
+					}
 				});
 			}
 		}
