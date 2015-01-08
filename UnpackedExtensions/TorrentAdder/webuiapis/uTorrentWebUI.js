@@ -13,21 +13,41 @@ RTA.clients.uTorrentAdder = function uTorrentAdder(server, torrentdata, cookie) 
       RTA.displayResponse("Failure", "Problem getting the uTorrent token.\nIs uTorrent running?\nusername/password corrent?\n" + textStatus, true);
       return;
     }
-    var data = jQuery.param({token: server.token, action: 'add-url', s: torrentdata});
-    return jQuery.ajax(baseURL, {
-      data: data,
+    var isBEncode = torrentdata.substr(0, 40).lastIndexOf(':') > 7;
+    var params = {
+      url: baseURL,
+      data: jQuery.param({token: server.token, action: 'add-url', s: torrentdata}),
+      dataType: 'json',
       username: server.login,
       password: server.password
-    });
-  }).done(function (resp, textStatus, jqXHR) {
-    if (!resp) return;
-    if(/\{"build":\d+\}/.test(resp)) {
-      RTA.displayResponse("Success", "Torrent added successfully.");
+    };
+    if (isBEncode) {
+      var boundary = "AJAX-----------------------" + Date.now();
+      params.type = 'POST';
+      params.url += '?' + jQuery.param({token: server.token, action: 'add-file'});
+      params.contentType = 'multipart/form-data; boundary=' + boundary;
+      params.data = [
+        '--' + boundary,
+        'Content-Disposition: form-data; name="torrent_file"; filename="file.torrent"',
+        'Content-Type: application/x-bittorrent',
+        '',
+        torrentdata,
+        '--' + boundary,
+        ''
+      ].join('\r\n');
+    };
+    return jQuery.ajax(params);
+  }).done(function (resp) {
+    if (!resp) {
+      RTA.displayResponse("Failure", "Server didn't response", true);
+    } else if (resp.error === "Can't add torrent: ") {
+      RTA.displayResponse("Duplicate", "Torrent already added.");
+    } else if (resp.error) {
+      RTA.displayResponse("Failure", "Server didn't accept data:\n" + resp.error, true);
     } else {
-      console.log("Torrent Adder", jqXHR);
-      RTA.displayResponse("Failure", "Server didn't accept data:\n" + jqXHR.status + ":\n" + jqXHR.responseText, true);
+      RTA.displayResponse("Success", "Torrent added successfully.");
     }
   }).fail(function (jqXHR, textStatus, errorThrown) {
-    RTA.displayResponse("Failure", "Server responded with HTTP code:\n" + jqXHR.status + ": " + jqXHR.responseText, true);
+    RTA.displayResponse("Failure", "Server responded with HTTP code:\n" + jqXHR.status + ' - ' + textStatus + ": " + jqXHR.responseText, true);
   })
 }

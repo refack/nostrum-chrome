@@ -43,51 +43,40 @@ RTA.dispatchTorrent = function(server, data, name, label, dir, cookie) {
 
 
 RTA.getTorrent = function(server, url, label, dir, cookie) {
-	if(url.substring(0,7) == "magnet:") {
-	var magnetURL;
-	var reGroups = /(?:\:\/{0,2})([a-zA-Z0-9]{20,50})/.exec(url) || [];
-	var hash = reGroups[1] && reGroups[1].toUpperCase();
-	var getURI = hash ? ('http://torcache.net/torrent/' + hash + '.torrent') : url;
-	var ret = RTA.dispatchTorrent(server, getURI, "", label, dir, cookie);
+	var name = (url.match(/\/([^\/]+.torrent)$/) || [])[1] || "file.torrent";
+	if(url.substring(0, 4) !== "http") {
+		var reGroups = /(?:\:\/{0,2})([a-zA-Z0-9]{20,50})/.exec(url) || [];
+		var hash = reGroups[1] && reGroups[1].toUpperCase();
+		var newURI = hash ? ('http://torcache.net/torrent/' + hash + '.torrent') : url;
+		$.ajax(newURI, {type: 'HEAD', contentType: "text/plain; charset=x-user-defined"}).done(function () {
+			RTA.dispatchTorrent(server, newURI, "", label, dir, cookie);
+		}).fail(function () {
+			RTA.dispatchTorrent(server, url, "", label, dir, cookie);
+		});
 	} else {
-		var xhr = new XMLHttpRequest();
-		xhr.open("GET", url, true);
-		xhr.overrideMimeType("text/plain; charset=x-user-defined");
-		xhr.onreadystatechange = function(data) {
-			if(xhr.readyState == 4 && xhr.status == 200) {
-				if(url.match(/\/([^\/]+.torrent)$/)) {
-					name = url.match(/\/([^\/]+.torrent)$/)[1];
-				} else {
-					name = "file.torrent";
-				}
-				
-				RTA.dispatchTorrent(server, xhr.responseText, name, label, dir);
-			} else if(xhr.readyState == 4 && xhr.status < 99) {
-				RTA.displayResponse("Connection failed", "The server sent an irregular HTTP error code: " + xhr.status, true);
-			} else if(xhr.readyState == 4 && xhr.status != 200) {
-				RTA.displayResponse("Connection failed", "The server sent the following HTTP error code: " + xhr.status, true);
-			}
-		};
-		xhr.send(null);
-	}
+		$.ajax(url, {contentType: "text/plain; charset=x-user-defined"}).done(function (res) {
+			RTA.dispatchTorrent(server, res, name, label, dir);
+		}).fail(function (jqXHR, textStatus, errorThrown) {
+			RTA.displayResponse("Connection failed", "The server sent the following HTTP status:\n" + textStatus, true);
+		});
+	};
 }
 
 
 RTA.displayResponse = function(title, message, error) {
-	if(localStorage.getItem("showpopups") == "true") {
-		var opts = { 
-					type: "basic", 
-					iconUrl: (error === true) ? "icons/BitTorrent128-red.png" : "icons/BitTorrent128.png", 
-					title: title,
-					priority: 0,
-					message: message
-					};
-		var id = Math.floor(Math.random() * 99999) + "";
-		
-		chrome.notifications.create(id, opts, function(myId) { id = myId });
-		
-		setTimeout(function(){chrome.notifications.clear(id, function() {});}, localStorage.getItem('popupduration'));
-	}
+	if(localStorage.getItem("showpopups") !== "true") return;
+	var timeOut = localStorage.getItem('popupduration');
+	var opts = { 
+		type: "basic", 
+		iconUrl: "icons/BitTorrent128" + (error ? "-red.png" : ".png"),
+		priority: 0,
+		title: title,
+		message: message
+	};
+	var id = String(Math.floor(Math.random() * 99999));
+	chrome.notifications.create(id, opts, function(myId) { 
+		setTimeout(function () { chrome.notifications.clear(myId, jQuery.noop); }, timeOut);
+	});
 }
 
 
