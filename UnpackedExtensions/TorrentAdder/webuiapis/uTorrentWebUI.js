@@ -13,29 +13,23 @@ RTA.clients.uTorrentAdder = function uTorrentAdder(server, torrentdata, cookie) 
       RTA.displayResponse("Failure", "Problem getting the uTorrent token.\nIs uTorrent running?\nusername/password corrent?\n" + textStatus, true);
       return;
     }
-    var isBEncode = torrentdata.substr(0, 40).lastIndexOf(':') > 7;
     var params = {
       url: baseURL,
-      data: jQuery.param({token: server.token, action: 'add-url', s: torrentdata}),
       dataType: 'json',
       username: server.login,
       password: server.password
     };
-    if (isBEncode) {
-      var boundary = "AJAX-----------------------" + Date.now();
+    if (torrentdata instanceof Blob) {
+      var fd = new FormData();
+      fd.append("torrent_file", torrentdata, Date.now() + ".torrent");
       params.type = 'POST';
       params.url += '?' + jQuery.param({token: server.token, action: 'add-file'});
-      params.contentType = 'multipart/form-data; boundary=' + boundary;
-      params.data = [
-        '--' + boundary,
-        'Content-Disposition: form-data; name="torrent_file"; filename="file.torrent"',
-        'Content-Type: application/x-bittorrent',
-        '',
-        torrentdata,
-        '--' + boundary,
-        ''
-      ].join('\r\n');
-    };
+      params.data = fd;
+      params.processData = false;
+      params.contentType = false;
+    } else {
+      params.data = jQuery.param({token: server.token, action: 'add-url', s: torrentdata});
+    }
     return jQuery.ajax(params);
   }).done(function (resp) {
     if (!resp) {

@@ -48,17 +48,18 @@ RTA.getTorrent = function(server, url, label, dir, cookie) {
 		var reGroups = /(?:\:\/{0,2})([a-zA-Z0-9]{20,50})/.exec(url) || [];
 		var hash = reGroups[1] && reGroups[1].toUpperCase();
 		var newURI = hash ? ('http://torcache.net/torrent/' + hash + '.torrent') : url;
-		$.ajax(newURI, {type: 'HEAD', contentType: "text/plain; charset=x-user-defined"}).done(function () {
+		$.ajax(newURI, {type: 'HEAD'}).done(function () {
 			RTA.dispatchTorrent(server, newURI, "", label, dir, cookie);
 		}).fail(function () {
 			RTA.dispatchTorrent(server, url, "", label, dir, cookie);
 		});
 	} else {
-		$.ajax(url, {contentType: "text/plain; charset=x-user-defined"}).done(function (res) {
-			RTA.dispatchTorrent(server, res, name, label, dir);
-		}).fail(function (jqXHR, textStatus, errorThrown) {
-			RTA.displayResponse("Connection failed", "The server sent the following HTTP status:\n" + textStatus, true);
-		});
+    var xhr = new XMLHttpRequest()
+    xhr.onload = function () { RTA.dispatchTorrent(server, this.response, name, label, dir); };
+    xhr.onerror = function () { RTA.displayResponse("Connection failed", "The server sent the following HTTP status " + this.status + ":\n" + this.statusText, true); };
+    xhr.open('GET', url)
+    xhr.responseType = 'blob';
+    xhr.send()
 	};
 }
 
