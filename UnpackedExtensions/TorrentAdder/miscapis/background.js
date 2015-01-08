@@ -58,10 +58,9 @@ RTA.constructContextMenu();
 ////////////////////
 // GRAB FROM NEW TAB
 ////////////////////
-chrome.tabs.onCreated.addListener(function(tab) {
+if(localStorage.getItem("catchfromnewtab") === "true") chrome.tabs.onCreated.addListener(function(tab) {
 	var server = JSON.parse(localStorage.getItem("servers"))[0]; // primary server
-	if(localStorage.getItem("catchfromnewtab") != "true") return;
-	res = localStorage.getItem('linkmatches').split('~');
+	var res = localStorage.getItem('linkmatches').split('~');
 	for(mkey in res) {
 		if (tab.url.match(new RegExp(res[mkey], "g"))) {
 			RTA.getTorrent(server, tab.url);
