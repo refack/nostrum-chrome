@@ -1,4 +1,7 @@
-var menuItemIndexToServerIndex = [];
+(function () {
+'use strict';
+
+window.menuItemIndexToServerIndex = [];
 
 XMLHttpRequest.prototype.sendAsBinary = function(datastr) {
 	var data = new ArrayBuffer(datastr.length);
@@ -15,28 +18,28 @@ RTA.dispatchTorrent = function(server, data, name, label, dir, cookie) {
 	switch (server.client) {
 		case "Vuze SwingUI":
 			RTA.clients.vuzeSwingAdder(server, data); break;
-		case "Torrentflux WebUI":
+		case "Torrentflux":
 			RTA.clients.torrentfluxAdder(server, data, name); break;
-		case "Transmission WebUI":
+		case "Transmission":
 			RTA.clients.transmissionAdder(server, data); break;
-		case "uTorrent WebUI":
+		case "uTorrent":
 			RTA.clients.uTorrentAdder(server, data, cookie); break;
-		case "ruTorrent WebUI":
+		case "ruTorrent":
 			RTA.clients.ruTorrentAdder(server, data, label, dir); break;
-		case "Vuze HTML WebUI":
+		case "Vuze HTML":
 			RTA.clients.vuzeHtmlAdder(server, data); break;
-		case "Vuze Remote WebUI":
+		case "Vuze Remote":
 			RTA.clients.vuzeRemoteAdder(server, data); break;
-		case "Buffalo WebUI":
-		case "Buffalo WebUI (OLD!)":
+		case "Buffalo":
+		case "Buffalo (OLD!)":
 			RTA.clients.buffaloAdder(server, data, name); break;
-		case "qBittorrent WebUI":
+		case "qBittorrent":
 			RTA.clients.qBittorrentAdder(server, data, name); break;
-		case "Deluge WebUI":
+		case "Deluge":
 			RTA.clients.delugeAdder(server, data, name); break;
-		case "pyrt WebUI":
+		case "pyrt":
 			RTA.clients.pyrtAdder(server, data, name); break;
-		case "Tixati WebUI":
+		case "Tixati":
 			RTA.clients.tixatiAdder(server, data, name); break;
 	}
 }
@@ -47,20 +50,47 @@ RTA.getTorrent = function(server, url, label, dir, cookie) {
 	if(url.substring(0, 4) !== "http") {
 		var reGroups = /(?:\:\/{0,2})([a-zA-Z0-9]{20,50})/.exec(url) || [];
 		var hash = reGroups[1] && reGroups[1].toUpperCase();
-		var newURI = hash ? ('http://torcache.net/torrent/' + hash + '.torrent') : url;
-		$.ajax(newURI, {type: 'HEAD'}).done(function () {
-			RTA.dispatchTorrent(server, newURI, "", label, dir, cookie);
-		}).fail(function () {
-			RTA.dispatchTorrent(server, url, "", label, dir, cookie);
+		RTA.clients[server.client + 'Check'](server, hash).done(function (isDup) {
+			if (isDup) {
+				RTA.displayResponse("Duplicate", "Found a torrent with this has on server: " + hash, true)
+				return;
+			}
+			var newURI = hash ? ('http://torcache.net/torrent/' + hash + '.torrent') : url;
+			$.ajax(newURI, {type: 'HEAD'}).done(function () {
+				RTA.dispatchTorrent(server, newURI, "", label, dir, cookie);
+			}).fail(function () {
+				RTA.dispatchTorrent(server, url, "", label, dir, cookie);
+			});
 		});
 	} else {
-    var xhr = new XMLHttpRequest()
-    xhr.onload = function () { RTA.dispatchTorrent(server, this.response, name, label, dir); };
-    xhr.onerror = function () { RTA.displayResponse("Connection failed", "The server sent the following HTTP status " + this.status + ":\n" + this.statusText, true); };
-    xhr.open('GET', url)
-    xhr.responseType = 'blob';
-    xhr.send()
-	};
+		var def = $.Deferred();
+		var xhr = new XMLHttpRequest()
+		xhr.onload = function () { def.resolve(this.response); };
+		xhr.onerror = function () { def.reject( new Error("The server sent the following HTTP status " + this.status + ":\n" + this.statusText) ); };
+		xhr.open('GET', url)
+		xhr.responseType = 'blob';
+		xhr.send()
+		def.done(function (blob) {
+			if (blob instanceof Blob && blob.type === 'text/html') {
+				window.open(url, '_blank');
+				return;
+			}
+
+			getInfohash(blob).then(
+				RTA.clients[server.client + 'Check'].bind(undefined, server)
+			).done(function (isDup) {
+				if (isDup) {
+					RTA.displayResponse("Duplicate", "Found a torrent with this has on server: " + hash, true)
+					return;
+				}
+				RTA.dispatchTorrent(server, blob, name, label, dir);
+			}).fail(function () {
+				RTA.dispatchTorrent(server, blob, name, label, dir);
+			})
+
+		});
+
+	}
 }
 
 
@@ -129,7 +159,7 @@ RTA.genericOnClick = function(info, tab) {
 		}
 	} else { // only one server specified
 		var server = servers[serverId];
-		if(server.rutorrentdirlabelask == true && server.client == "ruTorrent WebUI") {
+		if(server.rutorrentdirlabelask == true && server.client == "ruTorrent") {
 			chrome.tabs.sendRequest(tab.id, {"action": "showLabelDirChooser", "url": info.linkUrl, "settings": localStorage, "server": server});
 		} else {
 			RTA.getTorrent(server, info.linkUrl);
@@ -148,3 +178,5 @@ RTA.getServers = function() {
 	}
 	return RTA._serversCached;
 }
+
+})()

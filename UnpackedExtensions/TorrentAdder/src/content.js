@@ -50,7 +50,7 @@ chrome.extension.sendRequest({"action": "getStorageData"}, function(response) {
 					var servers = JSON.parse(response.servers);
 					var server = servers[0];
 
-					if (server["rutorrentdirlabelask"] && server["client"]=="ruTorrent WebUI") {
+					if (server["rutorrentdirlabelask"] && server["client"]=="ruTorrent") {
 						showLabelDirChooser(response, url);
 					} else {
 						chrome.extension.sendRequest({"action": "addTorrent", "url": url, "label": undefined, "dir": undefined, "cookie": document.cookie});
