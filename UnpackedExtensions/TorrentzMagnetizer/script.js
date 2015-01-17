@@ -8,15 +8,25 @@
 // @version        1.3
 // @run_at         document_start
 // ==/UserScript==
+const HAS_MATCHER = /(?:^|>|\s)([0-9a-fA-F]{40})(?:$|<|\s)/;
 
-document.addEventListener("DOMContentLoaded", function(event) { 
-  var spans = document.querySelectorAll(".trackers > div");
-  Array.prototype.forEach.call(spans, function(elem) {
-      var hash_match = /[0-9a-fA-F]{40}/.exec(elem.innerHTML);
-      if (!hash_match || !hash_match.length) return;
-      var magnet_hash = hash_match[0];
-      var title = encodeURIComponent(document.title.split(' › ')[0]);
-      var magnet_hash_a_html = '<a href="magnet:?xt=urn:btih:' + magnet_hash + '&dn=' + title + '">' + magnet_hash + '</a>';
-      elem.innerHTML = elem.innerHTML.replace(magnet_hash, magnet_hash_a_html);
+document.addEventListener("DOMContentLoaded", function (event) {
+    'use strict';
+    var trzTitle = document.querySelectorAll("h2 span");
+    var trzTrackers = document.querySelectorAll(".trackers dt a");
+    var title = (trzTitle.length && trzTitle[0].innerHTML) || document.title.split(' › ')[0];
+    var suffix = '';
+    if (trzTitle.length && trzTrackers.length)
+        suffix = '&' + [].map.call(trzTrackers, function (elem) {return 'tr=' + encodeURIComponent(elem.innerHTML);}).join('&');
+
+    var spans = document.querySelectorAll(".trackers > div, td.lista");
+    Array.prototype.filter.call(spans, function (elem) {
+        var hash_match = HAS_MATCHER.exec(elem.innerHTML);
+        if (!hash_match || !hash_match.length) return null;
+        elem.hashMatch = hash_match[1];
+        return elem;
+    }).forEach(function (elem) {
+        var magnet_hash_a_html = '<a href="magnet:?xt=urn:btih:' + elem.hashMatch + '&dn=' + encodeURIComponent(title) + suffix + '">' + elem.hashMatch + '</a>';
+        elem.innerHTML = elem.innerHTML.replace(elem.hashMatch, magnet_hash_a_html);
   });
 });
