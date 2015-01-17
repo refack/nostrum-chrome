@@ -31,23 +31,23 @@ window.getInfohash = function getInfohash(file) {
 	reader.onload = function(e) {
 		var torrentArrayBuffer = reader.result;
 		var int8view = new Uint8Array(torrentArrayBuffer);
-    	int8view.pos = 0;
-    	int8view.substring = function (a,b) { return [].map.call(this.subarray(a,b), function (i) { return String.fromCharCode(i); }).join(''); };
-    	int8view.eatDelimiter = function () { this.pos++ };
-    	int8view.indexOf = [].indexOf;
-	    try {
-    		var decTor = bdecode(int8view);
-    	} catch (err) {
-      		def.reject(err);
-      		return;
-    	}
-		var slice = torrentArrayBuffer.slice(decTor.info.start, decTor.info.end);
+		int8view.pos = 0;
+		int8view.substring = function (a, b) { return [].map.call(this.subarray(a, b), function (i) { return String.fromCharCode(i); }).join(''); };
+		int8view.eatDelimiter = function () { this.pos++ };
+		int8view.indexOf = [].indexOf;
+		try {
+			var decTor = bdecode(int8view);
+		} catch (err) {
+			def.reject(err);
+			return;
+		}
+		var slice = torrentArrayBuffer.slice(decTor.info.startPos, decTor.info.endPos);
 		var hash = r.digestFromArrayBuffer(slice).toUpperCase();
 		def.resolve(hash);
-	}
+	};
 	reader.readAsArrayBuffer(file);
 	return def;
-}
+};
 
 
 function bdecode(buf){
@@ -56,7 +56,7 @@ function bdecode(buf){
 		case 100: //char code for 'd'
 			var retval = {};
       		retval.startPos = buf.pos;
-			buf.pos++;
+			buf.eatDelimiter();
 			while (buf[buf.pos] != 101){ // char code for 'e'
 				var key = bdecode(buf);
 				var val = bdecode(buf);
@@ -64,13 +64,13 @@ function bdecode(buf){
 				retval[key] = val;
 			}
 			buf.eatDelimiter();
-      		retval.startPos = start;
-      		retval.endPos = buf.pos;
+			retval.endPos = buf.pos;
 			return retval;
 
 		case 108: // char code for 'l'
 			var retval = [];
       		retval.startPos = buf.pos;
+			buf.eatDelimiter();
 			while (buf[buf.pos] != 101){ // char code for 'e'
 				var val = bdecode(buf);
 				if (val === null) break;
@@ -81,7 +81,7 @@ function bdecode(buf){
 			return retval;
 
 		case 105: //char code for 'i'
-			buf.pos++;
+			buf.eatDelimiter();
 			var end = buf.indexOf(101, buf.pos); // 101 = char code for 'e'
 			if (end < 0) return null;
 			var val = buf.substring(buf.pos, end);

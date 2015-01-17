@@ -1,12 +1,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<title>Options for Remote Torrent Adder</title>
-	<script type="text/javascript" src="miscapis/jquery-2.0.3.min.js"></script>
-	<script type="text/javascript" src="miscapis/jquery-ui-1.10.3.custom.min.js"></script>
-	<script type="text/javascript" src="miscapis/RTAinit.js"></script>
-	<script type="text/javascript" src="miscapis/functions.js"></script>
-	<script type="text/javascript" src="miscapis/config.js"></script>
-	<script type="text/javascript" src="miscapis/options.js"></script>
+	<script type="text/javascript" src="src/vendor/jquery-2.0.3.min.js"></script>
+	<script type="text/javascript" src="src/vendor/jquery-ui-1.10.3.custom.min.js"></script>
+	<script type="text/javascript" src="src/RTACommon.js"></script>
+	<script type="text/javascript" src="src/config.js"></script>
+	<script type="text/javascript" src="src/options.js"></script>
 	<link rel="stylesheet" type="text/css" href="themes/south-street/jquery-ui-1.10.3.custom.min.css" />
 	<link rel="stylesheet" type="text/css" href="options.css" />
 </head>
@@ -44,21 +43,21 @@
 			<li><a href="#tabs-3">Link Catching</a></li>
 			<li><a href="#tabs-4">About/Support</a></li>
 		</ul>
-		
+
 		<div id="tabs-1">
 			<div id="serverstabs">
 				The leftmost server will be used as the <i>default</i> server for left-clicks, etc.
 				Drag 'n drop to rearrange them.
 				You can change the name after clicking on them.<br/>
 				<br/>
-				<button id="add_tab">Add Server</button> 
+				<button id="add_tab">Add Server</button>
 				<br/><br/>
 				<ul>
-					
+
 				</ul>
 			</div>
 		</div>
-		
+
 		<div id="tabs-2"><table>
 			<tr>
 				<td><span class="title"><label for="linksfoundindicator">Address bar indicator</label></span></td>
@@ -80,7 +79,7 @@
 				<td><button id="notificationtest" >hit me</button></td>
 			</tr>
 		</table></div>
-		
+
 		<div id="tabs-3"><table>
 			<tr>
 				<td><span class="title"><label for="catchfromcontextmenu">Context menu</label></span></td>
@@ -106,7 +105,7 @@
 					<span class="tip">Enable this to have RTA grab links from newly opened tabs.</span></td>
 			</tr>
 		</table></div>
-		
+
 		<div id="tabs-4"><table>
 			<tr>
 				<td><span class="title">About the extension</span></td>
@@ -144,22 +143,8 @@
 				From a developer's standpoint, this extension has been written to be more or less plug and play. Support for each web interface is encapsulated in javascript functions, message passing between a content script that tracks torrent-links and the background script that does all the hard work facilitates all of the main functionality. Barely anything is commented, and there is next to no object orientation going on in the source code, so it's not the prettiest code. But since this started out mostly as a proof of concept to myself and most parts of it are either pretty self-explanatory, or hacked together using some rather new javascript methodologies (e.g. typed arrays), i don't see a reason to change that in the near future.
 				</td>
 			</tr>
-			<tr><td colspan="2">&nbsp;</td></tr>
-			<tr>
-				<td><span class="title">About the Developer</span></td>
-				<td>My name is Julian and i study Computer Science in Germany's beautiful university town of Heidelberg.<br/><br/>
-				If you like this extension a lot and/or have too much money on your hands, please consider donating one or two beers worth of it to my Paypal account or Bitcoin wallet:<br/>
-				<form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="margin-bottom: 0px;">
-					<input type="hidden" name="cmd" value="_s-xclick" />
-					<input type="hidden" name="hosted_button_id" value="E7PGHLKHR4GJL" />
-					<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!" />
-				</form>
-				Bitcoin address: <a href="bitcoin:15VMf7nUNgCutmQrGKu2gSQaLYfG9VtH74?label=Remote%20Torrent%20Adder">15VMf7nUNgCutmQrGKu2gSQaLYfG9VtH74</a><br/>
-				Be aware however that I may use it to buy a good bluray or pay tuition instead of fueling my liver's demise. All bets are off.
-				</td>
-			</tr>
 		</table></div>
-		
+
 	</div>
 </body>
 </html>

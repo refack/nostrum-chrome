@@ -2,15 +2,13 @@
    "background" : {
       "scripts" : [
          "src/vendor/jquery-2.0.3.min.js",
-         "src/init.js",
-         "src/functions.js",
+         "src/RTACommon.js",
          "src/config.js",
          "src/base64.js",
          "src/bedecode.js",
          "src/background.js",
          "src/webuiapis/TorrentfluxWebUI.js",
          "src/webuiapis/TransmissionWebUI.js",
-         "src/webuiapis/uTorrentWebUI.js",
          "src/webuiapis/ruTorrentWebUI.js",
          "src/webuiapis/VuzeHTMLUI.js",
          "src/webuiapis/VuzeRemoteUI.js",
@@ -53,7 +51,7 @@
    "permissions" : [ "*://*/*", "contextMenus", "notifications", "tabs" ],
    "short_name" : "NTA",
    "update_url" : "https://clients2.google.com/service/update2/crx",
-   "version" : "1.0.2",
+   "version": "1.0.3",
    "web_accessible_resources" : [
       "icons/*",
       "src/vendor/*"
