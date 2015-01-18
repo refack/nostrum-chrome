@@ -1,0 +1,16 @@
+{
+   "background" : {
+      "persistent" : true,
+      "scripts" : [ "background.js" ]
+   },
+   "description" : "Adds context menu items to open a frame a new tab etc.",
+   "icons" : {
+      "128" : "icon128.png",
+      "16" : "icon16.png",
+      "48" : "icon48.png"
+   },
+   "manifest_version" : 2,
+   "name" : "Nostrum Frames",
+   "permissions" : [ "<all_urls>", "tabs", "clipboardWrite", "contextMenus" ],
+   "version" : "1.0.0"
+}
