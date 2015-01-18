@@ -40,7 +40,7 @@ var FORMAT_TYPE = {
     '46': 'webm'
 };
 var FORMAT_ORDER = ['18', '43', '44', '22', '45', '37', '46', '38', '34', '35'];
-var FORMAT_RULE = {'flv': 'none', 'mp4': 'all', 'webm': 'none'};
+var FORMAT_RULE = {'flv': 'all', 'mp4': 'all', 'webm': 'all'};
 // all=display all versions, max=only highest quality version, none=no version
 // the default settings show all MP4 videos, the highest quality FLV and no WebM
 var RANDOM = Math.floor(Math.random() * 1234567890);
