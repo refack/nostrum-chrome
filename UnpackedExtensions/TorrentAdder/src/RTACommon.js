@@ -17,22 +17,34 @@
         },
 
 
-        getTorrent: function (server, url, label, dir, cookie) {
-            var name = (url.match(/\/([^\/]+.torrent)$/) || [])[1] || "file.torrent";
+        getTorrent: function (request, cb1) {
+            function cb(res) {
+                if (!res.error)
+                    RTA.displayResponse(res.title, "Torrent added successfully.");
+                if (res.title === 'Duplicate')
+                    RTA.displayResponse(res.title, "Found a torrent with this has on server:\n" + res.hash, true);
+                else
+                    RTA.displayResponse(res.title, "Server didn't accept data:\n" + res.resp.error, true);
+                cb1(res);
+            }
+
+            var server = RTA.getServers()[0]; // primary server
+            var url = request.url;
+            request.name = (url.match(/\/([^\/]+.torrent)$/) || [])[1] || "file.torrent";
             if (url.substring(0, 4) !== "http") {
                 var reGroups = /:\/{0,2}([a-zA-Z0-9]{20,50})/.exec(url) || [];
                 var hash = reGroups[1] && reGroups[1].toUpperCase();
-                server.check(hash).done(function (isDup) {
-                    if (isDup) {
-                        RTA.displayResponse("Duplicate", "Found a torrent with this has on server: " + hash, true);
-                        return;
-                    }
-                    var newURI = hash ? ('http://torcache.net/torrent/' + hash + '.torrent') : url;
-                    $.ajax(newURI, {type: 'HEAD'}).done(function () {
-                        server.add(newURI, "", label, dir, cookie);
-                    }).fail(function () {
-                        server.add(url, "", label, dir, cookie);
+                server.check(hash).then(function (isDup) {
+                    if (isDup) return cb({
+                        error: true,
+                        title: "Duplicate",
+                        message: "Found a torrent with this has on server: " + hash
                     });
+                    var newURI = hash ? ('http://torcache.net/torrent/' + hash + '.torrent') : url;
+                    return $.ajax(newURI, {type: 'HEAD'});
+                }).always(function (_, status) {
+                    request.url = status === 'OK' ? newURI : request.url;
+                    return server.add(request, cb);
                 });
             } else {
                 var def = $.Deferred();
@@ -43,21 +55,21 @@
                 xhr.responseType = 'blob';
                 xhr.send();
                 def.done(function (blob) {
-                    if (blob instanceof Blob && blob.type === 'text/html') {
-                        window.open(url, '_blank');
-                        return;
-                    }
+                    if (blob instanceof Blob && blob.type === 'text/html')
+                        return cb({navigate: true});
 
+                    request.blob = blob;
                     window.getInfohash(blob).then(server.check.bind(server)).then(
                         function (hash) {
-                            if (hash) {
-                                RTA.displayResponse("Duplicate", "Found a torrent with this has on server: " + hash, true);
-                                return;
-                            }
-                            server.add(blob, name, label, dir);
+                            if (hash) return cb({
+                                error: true,
+                                title: "Duplicate",
+                                message: "Found a torrent with this has on server: " + hash
+                            });
+                            return server.add(request, cb);
                         },
                         function () {
-                            server.add(blob, name, label, dir);
+                            return server.add(request, cb);
                         }
                     );
 
@@ -67,12 +79,12 @@
         },
 
 
-        displayResponse: function (title, message, error) {
+        displayResponse: function (title, message, isError) {
             if (localStorage.getItem("showpopups") !== "true") return;
             var timeOut = localStorage.getItem('popupduration');
             var opts = {
                 type: "basic",
-                iconUrl: "icons/BitTorrent128" + (error ? "-red.png" : ".png"),
+                iconUrl: "icons/BitTorrent128" + (isError ? "-red.png" : ".png"),
                 priority: 0,
                 title: title,
                 message: message
@@ -175,7 +187,7 @@
             );
         },
 
-        add: function uTorrentAdder(torrentdata) {
+        add: function uTorrentAdder(request, cb) {
             var server = this;
             server.getTokenPromise().then(function (token) {
                 var params = {
@@ -184,30 +196,31 @@
                     username: server.login,
                     password: server.password
                 };
-                if (torrentdata instanceof Blob) {
+                if (request.blob) {
                     var fd = new FormData();
-                    fd.append("torrent_file", torrentdata, Date.now() + ".torrent");
+                    fd.append("torrent_file", request.blob, Date.now() + ".torrent");
                     params.type = 'POST';
                     params.url += '?' + $.param({token: token, action: 'add-file'});
                     params.data = fd;
                     params.processData = false;
                     params.contentType = false;
                 } else {
-                    params.data = $.param({token: token, action: 'add-url', s: torrentdata});
+                    params.data = $.param({token: token, action: 'add-url', s: request.url});
                 }
                 return $.ajax(params);
-            }).done(function (resp) {
-                if (!resp) {
-                    RTA.displayResponse("Failure", "Server didn't response", true);
+            }).always(function (resp, textStatus) {
+                if (textStatus !== 'success') {
+                    var err = {error: "Server responded with HTTP code:\n" + resp.status + ' - ' + textStatus + ": " + resp.responseText};
+                    return cb({error: true, title: "Failure", resp: err});
+                } else if (!resp) {
+                    return cb({error: true, title: "Failure", resp: {}});
                 } else if (resp.error === "Can't add torrent: ") {
-                    RTA.displayResponse("Duplicate", "Torrent can't be added.", true);
+                    return cb({error: true, title: "Duplicate", resp: resp});
                 } else if (resp.error) {
-                    RTA.displayResponse("Failure", "Server didn't accept data:\n" + resp.error, true);
+                    return cb({error: true, title: "Failure", resp: resp});
                 } else {
-                    RTA.displayResponse("Success", "Torrent added successfully.");
+                    return cb({title: "Success"});
                 }
-            }).fail(function (jqXHR, textStatus) {
-                RTA.displayResponse("Failure", "Server responded with HTTP code:\n" + jqXHR.status + ' - ' + textStatus + ": " + jqXHR.responseText, true);
             });
         },
 

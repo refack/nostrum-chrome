@@ -1,6 +1,6 @@
 'use strict';
 // jshint -W089
-/* global chrome,document,$ */
+/* global chrome,document,$,window */
 chrome.extension.sendRequest({"action": "getStorageData"}, function (response) {
     if (!response || response["catchfrompage"] != "true") return;
 
@@ -46,12 +46,24 @@ chrome.extension.sendRequest({"action": "getStorageData"}, function (response) {
         if (response.linksfoundindicator === "true")
             chrome.extension.sendRequest({"action": "pageActionToggle"});
         for (var key in links) {
-            if (links[key].addEventListener) {
-                links[key].addEventListener('click', clickHandler);
-            }
+            links[key].addEventListener('click', clickHandler);
         }
     }
+
+    function clickHandler(e) {
+        if (e.ctrlKey || e.shiftKey || e.altKey || e.button === 1) return;
+        e.preventDefault();
+        e.stopPropagation();
+        var url = this.href; // jshint ignore:line
+        chrome.extension.sendRequest({action: "addTorrent", url: url}, function (res) {
+            window.document.body.focus();
+            if (res.navigate) {
+                window.location.href = url;
+            }
+        });
+    }
 });
+
 
 // register a listener that'll display the dir/label selection dialog
 chrome.extension.onRequest.addListener(function (request, sender, sendResponse) {
@@ -62,17 +74,7 @@ chrome.extension.onRequest.addListener(function (request, sender, sendResponse) 
 });
 
 
-function clickHandler(e) {
-    if (e.ctrlKey || e.shiftKey || e.altKey || e.button === 1) return;
 
-    e.preventDefault();
-    e.stopPropagation();
-
-    chrome.extension.sendRequest({
-        "action": "addTorrent",
-        "url": this.href
-    });
-}
 
 
 function showLabelDirChooser(settings, url, theServer) {
@@ -170,3 +172,5 @@ function showLabelDirChooser(settings, url, theServer) {
         chrome.extension.sendRequest({"action": "setStorageData", "data": settings});
     }
 }
+
+

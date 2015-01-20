@@ -31,7 +31,7 @@
             "src/vendor/fancybox/jquery.fancybox.pack.js",
             "src/content.js"
          ],
-         "matches" : [ "*://*/*" ],
+         "matches": ["<all_urls>"],
          "run_at" : "document_end"
       }
    ],
@@ -48,7 +48,12 @@
    "page_action" : {
       "default_icon" : "icons/BitTorrent16.png"
    },
-   "permissions" : [ "*://*/*", "contextMenus", "notifications", "tabs" ],
+   "permissions": [
+      "<all_urls>",
+      "contextMenus",
+      "notifications",
+      "tabs"
+   ],
    "short_name" : "NTA",
    "update_url" : "https://clients2.google.com/service/update2/crx",
    "version": "1.0.3",

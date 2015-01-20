@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////
 // TAKE CARE OF EXTENSION SETTINGS. VIRGIN/OLD INSTALL?
 ///////////////////////////////////////////////////////
-(function (window) {
+(function () {
 	'use strict';
 
 RTA.constructContextMenu();
@@ -14,7 +14,7 @@ RTA.constructContextMenu();
 if(localStorage.getItem("catchfromnewtab") === "true") chrome.tabs.onCreated.addListener(function(tab) {
 	var server = RTA.getServers()[0]; // primary server
 	var res = localStorage.getItem('linkmatches').split('~');
-	for(mkey in res) {
+	for (var mkey in res) {
 		if (tab.url.match(new RegExp(res[mkey], "g"))) {
 			RTA.getTorrent(server, tab.url);
 			break;
@@ -28,14 +28,12 @@ if(localStorage.getItem("catchfromnewtab") === "true") chrome.tabs.onCreated.add
 // OVERWRITE THE CLICK-EVENT OF LINKS WE WANT TO GRAB
 /////////////////////////////////////////////////////
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-	var server = RTA.getServers()[0]; // primary server
 	if(request.action == "addTorrent") {
-		RTA.getTorrent(server, request.url, request.label, request.dir, request.cookie);
-		sendResponse({});
+		RTA.getTorrent(request, sendResponse);
 	} else if(request.action == "getStorageData") {
 		sendResponse(localStorage);
 	} else if(request.action == "setStorageData") {
-		for(x in request.data)
+		for (var x in request.data)
 			localStorage.setItem(x, request.data[x]);
 		sendResponse({});
 	} else if(request.action == "pageActionToggle") {
@@ -47,4 +45,4 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	}
 });
 
-})(window);
+})();
