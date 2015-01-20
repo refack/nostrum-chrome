@@ -5,7 +5,7 @@
 	'use strict';
 
 RTA.constructContextMenu();
-
+	if (RTA.getServers()[0].getTokenPromise) RTA.getServers()[0].getTokenPromise();
 
 
 ////////////////////

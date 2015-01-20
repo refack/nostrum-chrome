@@ -19,13 +19,16 @@
 
         getTorrent: function (request, cb1) {
             function cb(res) {
+                if (res.navigate)
+                    return cb1(res);
+
                 if (!res.error)
-                    RTA.displayResponse(res.title, "Torrent added successfully.");
+                    return RTA.displayResponse(res.title, "Torrent added successfully.");
+
                 if (res.title === 'Duplicate')
-                    RTA.displayResponse(res.title, "Found a torrent with this has on server:\n" + res.hash, true);
+                    return RTA.displayResponse(res.title, "Found a torrent with this has on server:\n" + res.hash, true);
                 else
-                    RTA.displayResponse(res.title, "Server didn't accept data:\n" + res.resp.error, true);
-                cb1(res);
+                    return RTA.displayResponse(res.title, "Server didn't accept data:\n" + res.resp.error, true);
             }
 
             var server = RTA.getServers()[0]; // primary server
