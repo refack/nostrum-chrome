@@ -1,0 +1,242 @@
+{
+  "bg_extensionBlog": {
+    "description": "",
+    "message": "Extension's blog..."
+  },
+  "bg_installMessage": {
+    "description": "",
+    "message": "Extension succesfully installed. \u003Cbr/> Check out on Options page to configure it, and to know about diferent ways to support your humble extension provider ;)"
+  },
+  "bg_openOnNewTab": {
+    "description": "",
+    "message": "Open on new tab"
+  },
+  "bg_options": {
+    "description": "",
+    "message": "Options..."
+  },
+  "bg_searchEverywhere": {
+    "description": "",
+    "message": "Search everywhere!"
+  },
+  "bg_searchStringOn": {
+    "description": "",
+    "message": "Search '%s' on"
+  },
+  "bg_updateMessage": {
+    "description": "",
+    "message": "Extension succesfully updated to {VersionNumber}\u003Cbr/>Visit \u003Ca href=http://simpleselectsearch.blogspot.com>my blog\u003C/a> for a list of improvements."
+  },
+  "eraseOptions": {
+    "description": "",
+    "message": "Restore default options"
+  },
+  "extDescription": {
+    "description": "",
+    "message": "Select some text, right click on it and then search on your favourite search engines. You can configure some stuff."
+  },
+  "extName": {
+    "description": "Extension's name. Use   instead of spaces.",
+    "message": "Simple = Select + Search"
+  },
+  "importConfig": {
+    "description": "",
+    "message": "import"
+  },
+  "o_SupportThisHumble": {
+    "description": "",
+    "message": "Support this humble extension developer"
+  },
+  "o_SupportThisHumbleDescription": {
+    "description": "",
+    "message": "Of course, this extension is for free -I built it to use it myself, actually-... but if you really enjoy using it, and you'd like to show your appreciation, here's a list of things that might make me happy :)\r\n  \u003Cul>\r\n    \u003Cli>\u003Cb>Show me the money:\u003C/b> Hit the \u003Cb>donate\u003C/b> button at the top right of this page... and send me a few bucks!\u003C/li>\r\n    \u003Cli>\u003Cb>Make Amazon pay me:\u003C/b> Use any of the Amazon links featured on the options page, search stuff using my extension and buy it! If I had the links set up properly and my affiliate account is working -haven't tested it yet-, I might get a few bucks from Amazon... and it costs you zero!\u003C/li>\r\n    \u003Cli>\u003Cb>Guerrilla advertising:\u003C/b> \u003Ca href=\"http://twitter.com/home?status=OMG! I'm using Simple=Select+Search extension on Chrome and it rocks! http://bit.ly/HzSP8p @frenetix_\" title=\"Click to send this page to Twitter!\" target=\"_blank\">Share on Twitter\u003C/a>, \u003Ca href=\"https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fbit.ly%2FHzSP8p\" target=\"_blank\">post on Facebook\u003C/a>, G+ or wherever you feel this extension might be well received\u003C/li>\r\n    \u003Cli>\u003Cb>More Guerrilla advertising:\u003C/b> Visit my blog, post a comment link to any of those posts. G+ the posts you like.\u003C/li>\r\n    \u003Cli>\u003Cb>Boost my self esteem:\u003C/b> Rate the extension on Google's webstore, say how much you love it!\u003C/li>\r\n\r\n  \u003C/ul>"
+  },
+  "o_advancedConfig": {
+    "description": "",
+    "message": "Advanced config"
+  },
+  "o_cancel": {
+    "description": "",
+    "message": "cancel"
+  },
+  "o_checkOutMyBlog": {
+    "description": "",
+    "message": "Check out my \u003Ca href=\"http://simpleselectsearch.blogspot.com/\" target=\"_blank\">blog\u003C/a> for more. \u003Cbr/> \u003Cbr/> \u003Ca href=\"http://simpleselectsearch.blogspot.com/2012/11/help-me-translate.html\">Help me translate!\u003C/a>"
+  },
+  "o_confirmImport": {
+    "description": "",
+    "message": "I'm about to try and parse the text on your import/export textbox... if something goes wrong... just click on the *undo last import* button. I would also recommend that you keep a backup copy of this config... just in case :)"
+  },
+  "o_confirmRestore": {
+    "description": "",
+    "message": "I'm about to try and restore the config saved the last time you clicked on the *import* button"
+  },
+  "o_credits": {
+    "description": "",
+    "message": "Credits/Disclaimer"
+  },
+  "o_developedBy": {
+    "description": "",
+    "message": " \r\n  Developed by \u003Ca href=\"https://plus.google.com/u/0/100927641416387074874/about\" target=\"_blank\">Diego Presno\u003C/a>. Follow me on tweeter \u003Ca href=\"http://twitter.com/#!/frenetix_\" target=\"_blank\">@frenetix_\u003C/a>\r\n  \u003Cbr />\r\n  All images/icons designed by \u003Ca href=\"http://germanrivas.com/\" target=\"_blank\">germanrivas.com\u003C/a>.\u003Cbr/>\u003Cbr />\r\n  \u003Ch2>Disclaimer\u003C/h2>\r\n  Please, be warned: the usage of this extension is being tracked by Google Analytics.\r\n  It also tracks which search engines are the most used by users, so I can then be able to add them to the featured Search Engines list.\u003Cbr/>\r\n  The extension does not track the identity of its user, nor what terms they're looking for.\r\n  Only the search URL syntax is being recorded.\u003Cbr/>\r\n  No individual information will be shared with third parties. The only information published will be about the most used sites. An example of the published information can be found on my \u003Ca href=\"http://simpleselectsearch.blogspot.com/\" target=\"_blank\">blog\u003C/a>."
+  },
+  "o_edit": {
+    "description": "",
+    "message": "edit"
+  },
+  "o_featuredSearchEngines": {
+    "description": "",
+    "message": "Featured Search Engines"
+  },
+  "o_featuredSearchEngnesDesc": {
+    "description": "",
+    "message": " Double click on a URL to include it in your Search Engines' list."
+  },
+  "o_first": {
+    "description": "",
+    "message": "First"
+  },
+  "o_giveNewTabFocus": {
+    "description": "",
+    "message": "Give new tab focus."
+  },
+  "o_groupBy": {
+    "description": "",
+    "message": "Group By:&nbsp;&nbsp;  "
+  },
+  "o_help": {
+    "description": "",
+    "message": "Help"
+  },
+  "o_helpHowDoI": {
+    "description": "",
+    "message": "Help! how do I edit the Search Engines' list?"
+  },
+  "o_helpHowDoIDescription": {
+    "description": "",
+    "message": "It's really easy! \u003Cbr />\r\n  Just click on any row's edit icon (the one with the little pencil) or just click the \"name\" column and edit its values.\r\n  \u003Cul>\r\n    \u003Cli>The \"name\" column refers to what you'll see on the context menu.\u003C/li>\r\n    \u003Cli>The \"Search URL\" refers to what the search engine needs to run your query.\u003C/li>\r\n    \u003Cli>The \u003Cspan class=\"searchString\">%s\u003C/span> symbol will be replaced with the selected text on your browser.\u003C/li>\r\n  \u003C/ul>\r\n  You can decide the order of your search engines by dragging them up and down... do it over the \"#\" column, where the up and down arrows appear. Your mouse pointer will change when you're over the right spot, and you'll figure it out.\r\n  \u003Ch2>Here's a simple way to create a Search URL of your own:\u003C/h2>\r\n  \u003Cul>\r\n    \u003Cli>On your preferred site, perform a search for the word \"TESTSEARCH\".\u003C/li>\r\n    \u003Cli> Then just copy the URL that was generated within the site, that might look like this, for example, on IMDB: http://www.imdb.com/find?s=all;q=\u003Cspan class=\"searchString\">TESTSEARCH\u003C/span>.\u003C/li>\r\n    \u003Cli>Now just replace \u003Cspan class=\"searchString\">TESTSEARCH\u003C/span> with \u003Cspan class=\"searchString\">%s\u003C/span> and paste it here, on the \"Search URL\" column.\u003C/li>\r\n    \u003Cli>Then indicate a name to that Search URL and you're done!\u003C/li>\r\n  \u003C/ul>\r\n  Make sure you check first if the site you'd like to add is on the \"Other search engines\" table. I'm updating that table every now and the. If you have any suggestions for that list, they are more than welcome.\r\n  \u003Cbr/>\r\n  \u003Cbr/> You can sort the URLs order by hovering over the first column."
+  },
+  "o_hideThisLink": {
+    "description": "",
+    "message": "Hide this link only if it really hurts your eyes!... \u003Ci>every time someone hides this link, \u003Ca href=\"http://2.bp.blogspot.com/-6FkW_onHQ1Y/TgNUqC5LD1I/AAAAAAAABCs/drzXBGoksys/s640/Kitten-Running.jpg\" target=\"_blank\">a kitten dies\u003C/a>\u003C/i> :o(."
+  },
+  "o_importExport": {
+    "description": "",
+    "message": "Import/Export Config"
+  },
+  "o_importExportDescription": {
+    "description": "",
+    "message": "Here's all the config info. Just copy & save it on any text file...\u003Cbr />\r\n  If you want to import your previously saved config, just paste it here and click on the import button.\u003Cbr />\u003Cbr />"
+  },
+  "o_importSuccesfull": {
+    "description": "",
+    "message": "Import successfull. Before reloading this page, check your Search Engines list to make sure everything goes well. If it's empty, then hit the *undo last import* button."
+  },
+  "o_language": {
+    "description": "",
+    "message": "Language"
+  },
+  "o_last": {
+    "description": "",
+    "message": "Last"
+  },
+  "o_leavingThisCheckbox": {
+    "description": "",
+    "message": "Leaving this checkbox marked means I'll be tracking your search engines' usage.\r\n  \u003Cbr/>The gathered information is used by me, only for statistical analysis purposes.\r\n  \u003Cbr/>No user information is being tracked.\r\n  \u003Cbr/>No search terms are being tracked (only the search engine used). You can read more about this on \u003Ca href=\"http://simpleselectsearch.blogspot.com/\" target=\"_blank\">my blog\u003C/a>."
+  },
+  "o_moreSearchEngines": {
+    "description": "",
+    "message": "More Search Engines"
+  },
+  "o_mySearchEngines": {
+    "description": "",
+    "message": "My Search Engines"
+  },
+  "o_mySearchEnginesDesc": {
+    "description": "",
+    "message": "These are your configured search engines. Select other engines from the Featured Search Engines list below or create your own. Check the help for instructions."
+  },
+  "o_name": {
+    "description": "",
+    "message": "Name"
+  },
+  "o_new": {
+    "description": "",
+    "message": "new"
+  },
+  "o_newTabPosition": {
+    "description": "",
+    "message": "New tab's position:"
+  },
+  "o_next": {
+    "description": "",
+    "message": "Next"
+  },
+  "o_nothingToRestore": {
+    "description": "",
+    "message": "Sorry, I've got nothing to restore"
+  },
+  "o_ok": {
+    "description": "",
+    "message": "ok"
+  },
+  "o_openLinksInNewTab": {
+    "description": "",
+    "message": "Open links in new tab."
+  },
+  "o_otherStuffYouCan": {
+    "description": "",
+    "message": "Other stuff you can configure"
+  },
+  "o_previous": {
+    "description": "",
+    "message": "Previous"
+  },
+  "o_restoreSuccesfull": {
+    "description": "",
+    "message": "Config saved before last import was just restored... if this doesn't help, you can always reset the options to the default settings -the button at the bottom of this page-... or might try and retrieve the config backup you should have done ;)"
+  },
+  "o_searchEngines": {
+    "description": "",
+    "message": "Search engines"
+  },
+  "o_searchURL": {
+    "description": "",
+    "message": "Search URL"
+  },
+  "o_selectAURL": {
+    "description": "",
+    "message": "Please select a URL"
+  },
+  "o_showThePleaseCheckOut": {
+    "description": "",
+    "message": "Show the \"Please, Check out my blog!\" link :)."
+  },
+  "o_supportMe": {
+    "description": "",
+    "message": "Support me :)"
+  },
+  "o_sureYouWantToDelete": {
+    "description": "",
+    "message": "Sure you want to delete this row?"
+  },
+  "o_thankYou": {
+    "description": "",
+    "message": "Thank you!"
+  },
+  "o_trackSearchEngines": {
+    "description": "",
+    "message": " Track search engines usage."
+  },
+  "o_type": {
+    "description": "",
+    "message": "Type"
+  },
+  "o_ungrouped": {
+    "description": "",
+    "message": "Ungrouped"
+  },
+  "undoLastImport": {
+    "description": "",
+    "message": "undo last import"
+  }
+}
