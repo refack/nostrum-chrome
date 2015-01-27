@@ -37,16 +37,16 @@
             if (url.substring(0, 4) !== "http") {
                 var reGroups = /:\/{0,2}([a-zA-Z0-9]{20,50})/.exec(url) || [];
                 var hash = reGroups[1] && reGroups[1].toUpperCase();
+                var newURI = hash ? ('http://torcache.net/torrent/' + hash + '.torrent') : url;
                 server.check(hash).then(function (isDup) {
                     if (isDup) return cb({
                         error: true,
                         title: "Duplicate",
                         message: "Found a torrent with this has on server: " + hash
                     });
-                    var newURI = hash ? ('http://torcache.net/torrent/' + hash + '.torrent') : url;
                     return $.ajax(newURI, {type: 'HEAD'});
-                }).always(function (_, status) {
-                    request.url = status === 'OK' ? newURI : request.url;
+                }).always(function (res) {
+                    request.url = (!res) ? newURI : request.url;
                     return server.add(request, cb);
                 });
             } else {
