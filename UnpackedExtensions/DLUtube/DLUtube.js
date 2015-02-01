@@ -4,19 +4,19 @@ var RANDOM = Math.floor(Math.random() * 1234567890);
 var CONTAINER_ID = 'download-youtube-video' + RANDOM;
 var BUTTON_ID = 'download-youtube-video-button' + RANDOM;
 var FORMAT_LABEL = {
-    '22': 'MP4 720p (HD)',
-    '45': 'WebM 720p (HD)',
-    '44': 'WebM 480p',
-    '18': 'MP4 360p',
-    '43': 'WebM 360p',
-    '37': 'MP4 1080p (HD)',
-    '46': 'WebM 1080p (HD)',
-    '38': 'MP4 4K (HD)',
-    '34': 'FLV 360p',
-    '35': 'FLV 480p',
-    '5': 'FLV 240p',
-    '17': '3GPP L0',
-    '36': '3GPP L1'
+    '_22': 'MP4 720p (HD)',
+    '_45': 'WebM 720p (HD)',
+    '_44': 'WebM 480p',
+    '_18': 'MP4 360p',
+    '_43': 'WebM 360p',
+    '_37': 'MP4 1080p (HD)',
+    '_46': 'WebM 1080p (HD)',
+    '_38': 'MP4 4K (HD)',
+    '_34': 'FLV 360p',
+    '_35': 'FLV 480p',
+    '_5':  'FLV 240p',
+    '_17': '3GPP L0',
+    '_36': '3GPP L1'
 };
 
 
@@ -24,15 +24,17 @@ function generateDlMenu(videoURL, isShow) {
     var listItems = document.createElement('ol');
     if (!isShow) listItems.setAttribute('style', 'display:none;');
     listItems.setAttribute('class', 'yt-uix-button-menu');
-    for (var l in FORMAT_LABEL) {
-        var u = videoURL[l];
+    for (var i in FORMAT_LABEL) {
+        var label = FORMAT_LABEL[i];
+        var code = i.replace('_', '');
+        var u = videoURL[code];
         if (!u) continue;
         var listItem = document.createElement('li');
         var listLink = document.createElement('a');
         listLink.setAttribute('style', 'text-decoration:none;');
         listLink.setAttribute('href', u);
         listLink.setAttribute('class', 'yt-uix-button-menu-item');
-        listLink.appendChild(document.createTextNode(FORMAT_LABEL[l]));
+        listLink.appendChild(document.createTextNode(label));
         listItem.appendChild(listLink);
         listItems.appendChild(listItem);
     }
