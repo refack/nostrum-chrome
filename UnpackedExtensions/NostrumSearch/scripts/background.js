@@ -1,9 +1,9 @@
+'use strict';
+/*global localStorage, chrome */
 var defaultConfig = {
     "newTab": true,
     "newTabSelected": true,
     "newTabPosition": "Last",
-    "trackGA": true,
-    "showBlog": true,
     "searchEngines": [
         {"name": "Youtube", "url": "http://www.youtube.com/results?search_query=%s&aq=f"},
         {"name": "IMDB", "url": "http://www.imdb.com/find?q=%s&s=all"},
@@ -19,7 +19,7 @@ var defaultConfig = {
 var config = initializeConfig(localStorage["config"], defaultConfig);
 
 function initializeConfig(localConfig, defaultConfig) {
-    if (localConfig == undefined) {
+    if (localConfig === undefined) {
         //future me: load defaultConfig from website, dynamically
         //see this, http://www.javascriptkit.com/javatutors/loadjavascriptcss.shtml
         //but i guess it will be easier to just load a page with the JSON... except for performance
@@ -34,14 +34,13 @@ function initializeConfig(localConfig, defaultConfig) {
         //compares localConfig with defaultConfig
         for (var key in defaultConfig) {
             if (defaultConfig.hasOwnProperty(key)) {
-                if (localConfig[key] == undefined) {
+                if (localConfig[key] === undefined) {
                     console.log(key + " -> " + defaultConfig[key] + " ---> " + localConfig[key]);
                     localConfig[key] = defaultConfig[key];
                 }
             }
         }
     }
-    ;
     return localConfig;
 }
 
@@ -49,52 +48,34 @@ function genericSearch(info, tab, idSE) {
 
     if (config.newTab) { //for "remember an update my created tabs" feature, here I'll store the ID of the created tab and then reuse it with an update. to store the ID of a created tab use a callback function on the tabs.create thing = function(Tab tab) {...};
         searchOnNewTab(idSE, info, tab);
-    }
-    else {
+    } else {
         //Todo: Refactor this out of the else and use the newTab variable
         chrome.tabs.update(tab.id, {"url": config.searchEngines[idSE].url.replace(/%s/g, info.selectionText).replace(/%S/g, info.selectionText)});
-
     }
-    ;
-    trackGA(idSE);
-
 }
 
 function openOptions() {
     chrome.tabs.create({"url": "options.html"});
 }
 
-function openBlog() {
-    chrome.tabs.create({"url": "http://simpleselectsearch.blogspot.com/"});
-}
-
 function checkboxOnClick() {
-    if (config.newTab) {
-        config.newTab = false;
-
-    }
-    else {
-        config.newTab = true;
-
-    }
-    ;
-
+    config.newTab = !config.newTab;
     localStorage["config"] = JSON.stringify(config);
-    //aca deberia ser newTab=estado del check Menu
-
 }
 
 function bulkSearch(info, tab) {
-    for (i = 0; i < config.searchEngines.length; ++i) {
+    for (var i = 0; i < config.searchEngines.length; ++i) {
 
         searchOnNewTab(i, info, tab);
-        trackGA(i);
     }
 }
 
 function searchOnNewTab(newTabIndex, info, tab) {
 
-    var newTab = {"url": config.searchEngines[newTabIndex].url.replace(new RegExp("%s", "g"), info.selectionText).replace(new RegExp("%S", "g"), info.selectionText)}
+    var newTab = {
+        url: config.searchEngines[newTabIndex].url.replace(new RegExp("%s", "g"), info.selectionText).replace(new RegExp("%S", "g"), info.selectionText),
+        openerTabId: tab.id
+    };
 
     if (config.newTabPosition == "First") {
         newTab.index = 0;
@@ -110,119 +91,76 @@ function searchOnNewTab(newTabIndex, info, tab) {
 }
 
 
-//Tracks google analytics
-function trackGA(idSE) {
-    if (config.trackGA) {
-        _gaq.push(['_trackEvent', 'Search Click', config.searchEngines[idSE].name, config.searchEngines[idSE].url]);
-    }
-    else {
-        _gaq.push(['_trackEvent', 'Search Click', 'Confidential', 'Confidential']);
-    }
-}
-
 // Create menu items
 function createMenu() {
     chrome.contextMenus.removeAll();
     var context = "selection";
     var title = chrome.i18n.getMessage("bg_searchStringOn");
 
-    if (config.searchEngines.length > 1) {
-        var id = chrome.contextMenus.create({
-            "title": title,
-            "contexts": [context],
-            "onclick": function (idSE) { return function (info, tab) {genericSearch(info, tab, idSE) } }(0)
-        });
-
-
-        for (i = 0; i < config.searchEngines.length; ++i) {
-            var child = chrome.contextMenus.create({
-                "title": config.searchEngines[i].name,
-                "parentId": id,
-                "contexts": [context],
-                "onclick": function (idSE) { return function (info, tab) {genericSearch(info, tab, idSE) } }(i)
-            });
-
-        }
-
-        // separator
-        var child = chrome.contextMenus.create({"type": "separator", "parentId": id, "contexts": [context]});
-
-        //search on all
-        var child = chrome.contextMenus.create({
-            "title": chrome.i18n.getMessage("bg_searchEverywhere"),
-            "parentId": id,
-            "contexts": [context],
-            "onclick": bulkSearch
-        });
-        // separator
-        var child = chrome.contextMenus.create({"type": "separator", "parentId": id, "contexts": [context]});
-
-        // check new tab
-        var child = chrome.contextMenus.create({
-            "title": chrome.i18n.getMessage("bg_openOnNewTab"),
-            "type": "checkbox",
-            "checked": config.newTab,
-            "parentId": id,
-            "contexts": [context],
-            "onclick": checkboxOnClick
-        });
-        // options
-        var child = chrome.contextMenus.create({
-            "title": chrome.i18n.getMessage("bg_options"),
-            "parentId": id,
-            "contexts": [context],
-            "onclick": openOptions
-        });
-
-        //Blog
-        if (config.showBlog) {
-            // separator
-            var child = chrome.contextMenus.create({"type": "separator", "parentId": id, "contexts": [context]});
-            var child = chrome.contextMenus.create({
-                "title": chrome.i18n.getMessage("bg_extensionBlog"),
-                "parentId": id,
-                "contexts": [context],
-                "onclick": openBlog
-            });
-        }
-
-
-    }
-    else {
+    if (!config.searchEngines.length) {
         title = title + " ";
 
 
-        for (i = 0; i < config.searchEngines.length; ++i) {
-            var id = chrome.contextMenus.create({
-                "title": title + config.searchEngines[i].name,
+        for (var j = 0; j < config.searchEngines.length; ++j) {
+            chrome.contextMenus.create({
+                "title": title + config.searchEngines[j].name,
                 "contexts": [context],
-                "onclick": function (idSE) { return function (info, tab) {genericSearch(info, tab, idSE) } }(i)
+                "onclick": (function (idSE) { return function (info, tab) {genericSearch(info, tab, idSE); }; })(j) // jshint ignore:line
             });
         }
 
+        return;
+    }
+    var id = chrome.contextMenus.create({
+        "title": title,
+        "contexts": [context],
+        "onclick": function (idSE) { return function (info, tab) {genericSearch(info, tab, idSE); }; }(0)
+    });
+
+
+    for (var i = 0; i < config.searchEngines.length; ++i) {
+        chrome.contextMenus.create({
+            "title": config.searchEngines[i].name,
+            "parentId": id,
+            "contexts": [context],
+            "onclick": (function (idSE) { return function (info, tab) {genericSearch(info, tab, idSE); }; })(i) // jshint ignore:line
+        });
 
     }
+
+    // separator
+    chrome.contextMenus.create({"type": "separator", "parentId": id, "contexts": [context]});
+
+    //search on all
+    chrome.contextMenus.create({
+        "title": chrome.i18n.getMessage("bg_searchEverywhere"),
+        "parentId": id,
+        "contexts": [context],
+        "onclick": bulkSearch
+    });
+    // separator
+    chrome.contextMenus.create({"type": "separator", "parentId": id, "contexts": [context]});
+
+    // check new tab
+    chrome.contextMenus.create({
+        "title": chrome.i18n.getMessage("bg_openOnNewTab"),
+        "type": "checkbox",
+        "checked": config.newTab,
+        "parentId": id,
+        "contexts": [context],
+        "onclick": checkboxOnClick
+    });
+    // options
+    chrome.contextMenus.create({
+        "title": chrome.i18n.getMessage("bg_options"),
+        "parentId": id,
+        "contexts": [context],
+        "onclick": openOptions
+    });
 
 }
 // initialize menu
 createMenu();
-
-// Google Analytics stuff
-
-var _gaq = _gaq || [];
-_gaq.push(['_setAccount', 'UA-23660432-1']);
-_gaq.push(['_trackPageview']);
-
-(function () {
-    var ga = document.createElement('script');
-    ga.type = 'text/javascript';
-    ga.async = true;
-    //ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    ga.src = 'https://ssl.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(ga, s);
-})();
-
 
 //open Options if first time
 
@@ -246,7 +184,7 @@ function getVersion() {
 
 // Check if the version has changed.
 var currVersion = getVersion();
-var prevVersion = localStorage['version']
+var prevVersion = localStorage['version'];
 var messageVersion = "";
 if (currVersion != prevVersion) {
     // Check if we just installed this extension.
