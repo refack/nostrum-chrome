@@ -1,17 +1,16 @@
 {
   "content_scripts": [
     {
+      "matches": ["<all_urls>"],
+      "all_frames": true,
       "js": ["DLUtube.js"],
-      "matches": [
-        "*://www.youtube.com/watch*",
-        "*://www.youtube.com/embed*"
-      ],
-      "run_at": "document_end"
+      "run_at": "document_start"
     }
   ],
-  "description": "Adds a button that lets you download YouTube videos.",
+  "description": "Lets you download YouTube videos.",
   "key": "7mlm37Li8un91YCT9/KpfawQX6Yim1MsR1guGHMb+Jo=",
   "manifest_version": 2,
   "name": "Download YouTube Videos",
-  "version": "2.0.0"
+  "version": "2.0.0",
+  "web_accessible_resources": ["contextmenu_fix_injected.js"]
 }
