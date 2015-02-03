@@ -1,15 +1,11 @@
 {
    "content_scripts" : [
       {
-         "exclude_globs" : [],
-         "exclude_matches" : [],
-         "include_globs" : [],
          "js" : [ "script.js" ],
          "matches" : [ "*://*/*" ],
-         "run_at" : "document_idle"
+         "run_at": "document_start"
       }
    ],
-   "converted_from_user_script" : true,
    "description" : "All HTML5 videos autoplay disabled",
    "key" : "50QAkBUHtyeqDhT30rTIPNWrnfPRIQNHWKPW4x/r7aE=",
    "manifest_version" : 2,

@@ -11,7 +11,7 @@
 
     chrome.runtime.sendMessage("get o", function(o) {
         var isMiddle = o.ctrlLeft ? isMiddleRegular : isMiddleSimple;
-        var color = o.color;
+//        var color = o.color;
 
         document.addEventListener("click", clickCapture, true);
         document.addEventListener("mousedown", clickCapture, true);
