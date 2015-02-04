@@ -1,67 +1,50 @@
 'use strict';
-// jshint -W089
 /* global chrome,document,$,window */
+var HASH_MATCHER = /\b[0-9a-fA-F]{25,40}\b/;
+var IGNORE_TAGS_MAP = {A: 1, SCRIPT: 1};
+var TRACKER_QUERY = [
+    '.trackers dt a', // torrentz
+    '#trackerBox td:first-of-type > div' // kickass
+].join(',');
+
+// get title
+var trzTitle = document.querySelector("h2 span") || {};
+var title = trzTitle.innerHTML || document.title.split(/ \W /)[0];
+// get trackers
+var trackers = [].slice.call(document.querySelectorAll(TRACKER_QUERY));
+// make suffix
+var suffix = '&dn=' + encodeURIComponent(title);
+trackers.forEach(function (e) {suffix += '&tr=' + encodeURIComponent(e.innerHTML); });
+
+// magnetize current document
+magnetize({target: document.documentElement});
+// magnetize future mutations
+document.addEventListener('DOMNodeInserted', magnetize);
+
+
 chrome.extension.sendRequest({"action": "getStorageData"}, function (response) {
     if (!response || response["catchfrompage"] != "true") return;
 
-    // handle common links
-    var links = [];
-    var rL = document.getElementsByTagName('a');
-    var res = response.linkmatches.split("~");
-    res.push("magnet:");
-    res.push("dht:");
-    var mkey;
-    if (response.linkmatches !== "") {
-        for (var lkey in rL) {
-            for (mkey in res) {
-                if (rL[lkey].href && rL[lkey].href.match(new RegExp(res[mkey], "g"))) {
-                    links.push(rL[lkey]);
-                    break;
-                }
-            }
-        }
-    }
-
-    // handle forms
-    var rB1 = Array.prototype.slice.call(document.getElementsByTagName('button'));
-    var rB2 = Array.prototype.slice.call(document.getElementsByTagName('input'));
-    var rB = rB1.concat(rB2);
-
-    var forms = [];
-    for (var x in rB) { // get an index-parallel array of parent forms
-        forms.push(rB[x].form);
-    }
-    for (var y in rB) {
-        for (mkey in res) {
-            if (forms[y] !== null && forms[y].hasOwnProperty('action') && forms[y].action.match && forms[y].action.match(new RegExp(res[mkey], "g"))) {
-                rB[y].href = forms[y].action;
-                links.push(rB[y]);
-                break;
-            }
-        }
-    }
-
-    // re-register actions
-    if (links.length) {
-        if (response.linksfoundindicator === "true")
-            chrome.extension.sendRequest({"action": "pageActionToggle"});
-        for (var key in links) {
-            links[key].addEventListener('click', clickHandler);
-        }
-    }
-
-    function clickHandler(e) {
+    var matches = response.linkmatches.split("~");
+    matches.push("magnet:");
+    matches.push("dht:");
+    document.addEventListener('click', function clickHandler(e) {
         if (e.ctrlKey || e.shiftKey || e.altKey || e.button === 1) return;
+
+        var hrefElem = [].filter.call(e.path, function (el) { return el.href; })[0];
+        if (!hrefElem) return true;
+        if (!matches.some(function (m) { return hrefElem.href.match(new RegExp(m, "g")); })) return true;
+
         e.preventDefault();
         e.stopPropagation();
-        var url = this.href; // jshint ignore:line
-        chrome.extension.sendRequest({action: "addTorrent", url: url}, function (res) {
+        chrome.extension.sendRequest({action: "addTorrent", url: hrefElem.href}, function (res) {
             window.document.body.focus();
             if (res.navigate) {
-                window.location.href = url;
+                window.location.href = hrefElem.href;
             }
         });
-    }
+        return false;
+    }, true);
 });
 
 
@@ -74,7 +57,25 @@ chrome.extension.onRequest.addListener(function (request, sender, sendResponse) 
 });
 
 
-
+function magnetize(e) {
+    var forest = [e.target];
+    var leafs = [];
+    while (forest.length) {
+        var elem = forest.pop();
+        if (elem.tagName in IGNORE_TAGS_MAP || !HASH_MATCHER.exec(elem.innerHTML)) continue;
+        var children = [].slice.call(elem.children);
+        if (children.length)
+            forest = forest.concat(children);
+        else
+            leafs.push(elem);
+    }
+    leafs.forEach(function (elem) {
+        var hash = HASH_MATCHER.exec(elem.innerHTML)[0];
+        var magnet = 'magnet:?xt=urn:btih:' + hash + suffix;
+        var magnet_a_html = '<a href="' + magnet + '">' + hash + '</a>';
+        elem.innerHTML = elem.innerHTML.replace(hash, magnet_a_html);
+    });
+}
 
 
 function showLabelDirChooser(settings, url, theServer) {

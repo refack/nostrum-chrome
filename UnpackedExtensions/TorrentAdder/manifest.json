@@ -22,16 +22,9 @@
    },
    "content_scripts" : [
       {
-         "all_frames" : true,
-         "css" : [ "src/vendor/fancybox/jquery.fancybox.css" ],
-         "js" : [
-            "src/vendor/jquery-2.0.3.min.js",
-            "src/vendor/jquery.mousewheel-3.0.6.pack.js",
-            "src/vendor/jquery-ui-1.10.3.custom.min.js",
-            "src/vendor/fancybox/jquery.fancybox.pack.js",
-            "src/content.js"
-         ],
          "matches": ["<all_urls>"],
+         "all_frames" : true,
+         "js": ["src/content_script.js"],
          "run_at" : "document_end"
       }
    ],
