@@ -30,6 +30,8 @@ if(localStorage.getItem("catchfromnewtab") === "true") chrome.tabs.onCreated.add
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	if(request.action == "addTorrent") {
 		RTA.getTorrent(request, sendResponse);
+	} else if (request.action == "createNotification") {
+		RTA.createNotification(request, sendResponse);
 	} else if(request.action == "getStorageData") {
 		sendResponse(localStorage);
 	} else if(request.action == "setStorageData") {

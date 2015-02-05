@@ -17,20 +17,55 @@
         },
 
 
-        getTorrent: function (request, cb1) {
-            function cb(res) {
-                if (res.navigate)
-                    return cb1(res);
+        getTorrent: function (request, cb) {
+            var interval;
 
-                if (!res.error)
-                    return RTA.displayResponse(res.title, "Torrent added successfully.");
-
-                if (res.title === 'Duplicate')
-                    return RTA.displayResponse(res.title, "Found a torrent with this has on server:\n" + res.hash, true);
-                else
-                    return RTA.displayResponse(res.title, "Server didn't accept data:\n" + res.resp.error, true);
+            function cb1(res) {
+                var opts = {progress: 100};
+                var nCB = $.noop;
+                if (res.navigate) {
+                    opts.message = "Just HTML, navigating...";
+                    nCB = cb.bind(undefined, res);
+                } else if (!res.error) {
+                    opts.title = "Done";
+                    opts.iconUrl = "icons/ck_alpha.png";
+                    opts.message = "Torrent added successfully.";
+                } else if (res.hash) {
+                    opts.title = "Duplicate";
+                    opts.iconUrl = "icons/ex_alpha.png";
+                    opts.message = "\n\nFound a torrent with this hash on server:\n\n" + res.hash;
+                } else {
+                    opts.title = "Error";
+                    opts.iconUrl = "icons/ex_alpha.png";
+                    opts.message = "Server didn't accept data:\n" + ((res.resp && res.resp.error) || res.statusText);
+                }
+                clearInterval(interval);
+                chrome.notifications.update(nId, opts, function () {
+                    setTimeout(chrome.notifications.clear.bind(chrome.notifications, nId, $.noop), 3000);
+                    nCB();
+                });
             }
 
+            var opts = {
+                type: "progress",
+                title: "Fetch Torrent",
+                message: encodeURI(request.url),
+                iconUrl: "icons/up_alpha.png",
+                isClickable: true,
+                progress: 0
+            };
+            var nId = String(Date.now());
+            chrome.notifications.create(nId, opts, function () {
+                interval = setInterval(function () {
+                    opts.progress += 30;
+                    var pOpt = {progress: (opts.progress / 10) % 100};
+                    chrome.notifications.update(nId, pOpt, $.noop);
+                }, 60);
+                RTA._getTorrent(request, cb1);
+            });
+        },
+
+        _getTorrent: function (request, cb) {
             var server = RTA.getServers()[0]; // primary server
             var url = request.url;
             request.name = (url.match(/\/([^\/]+.torrent)$/) || [])[1] || "file.torrent";
@@ -39,14 +74,11 @@
                 var hash = reGroups[1] && reGroups[1].toUpperCase();
                 var newURI = hash ? ('http://torcache.net/torrent/' + hash + '.torrent') : url;
                 server.check(hash).then(function (isDup) {
-                    if (isDup) return cb({
-                        error: true,
-                        title: "Duplicate",
-                        message: "Found a torrent with this has on server: " + hash
-                    });
+                    if (isDup) return {error: true, hash: hash};
                     return $.ajax(newURI, {type: 'HEAD'});
                 }).always(function (res) {
-                    request.url = (!res) ? newURI : request.url;
+                    if (res && res.error && !res.success) return cb(res);
+                    request.url = (res.status < 300) ? newURI : request.url;
                     return server.add(request, cb);
                 });
             } else {
@@ -58,26 +90,20 @@
                 xhr.responseType = 'blob';
                 xhr.send();
                 def.done(function (blob) {
-                    if (blob instanceof Blob && blob.type === 'text/html')
-                        return cb({navigate: true});
-
+                    if (blob instanceof Blob && blob.type === 'text/html') return cb({navigate: true});
                     request.blob = blob;
-                    window.getInfohash(blob).then(server.check.bind(server)).then(
+                    window.getInfohash(blob).then(
+                        server.check.bind(server)
+                    ).then(
                         function (hash) {
-                            if (hash) return cb({
-                                error: true,
-                                title: "Duplicate",
-                                message: "Found a torrent with this has on server: " + hash
-                            });
+                            if (hash) return cb({error: true, hash: hash});
                             return server.add(request, cb);
                         },
                         function () {
                             return server.add(request, cb);
                         }
                     );
-
                 });
-
             }
         },
 
@@ -86,11 +112,11 @@
             if (localStorage.getItem("showpopups") !== "true") return;
             var timeOut = localStorage.getItem('popupduration');
             var opts = {
-                type: "basic",
-                iconUrl: "icons/BitTorrent128" + (isError ? "-red.png" : ".png"),
-                priority: 0,
+                type: "progress",
                 title: title,
-                message: message
+                message: message,
+                iconUrl: "icons/BitTorrent128" + (isError ? "-red.png" : ".png"),
+                progress: 42
             };
             var id = String(Math.floor(Math.random() * 99999));
             chrome.notifications.create(id, opts, function (myId) {
