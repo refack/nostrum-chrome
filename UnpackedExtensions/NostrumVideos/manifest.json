@@ -7,10 +7,15 @@
       "run_at": "document_start"
     }
   ],
-  "description": "Lets you download YouTube videos.",
+  "description": "Restores context menu, stop autoplay, and enhance YouTube",
+  "icons": {
+    "128": "down128.png",
+    "16": "down16.png",
+    "48": "down48.png"
+  },
   "key": "7mlm37Li8un91YCT9/KpfawQX6Yim1MsR1guGHMb+Jo=",
   "manifest_version": 2,
-  "name": "Download YouTube Videos",
+  "name": "Nostrum Videos",
   "version": "2.0.0",
   "web_accessible_resources": [
     "dlutube_ico_trim.png",
