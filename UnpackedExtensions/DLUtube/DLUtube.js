@@ -39,14 +39,27 @@ if (!~location.href.indexOf('&list=') || !~location.href.indexOf('&index=')) {
         document.addEventListener('click', function () { this.__global_clicked = true; }, true);
         document.addEventListener('DOMNodeInserted', stopPlay);
         stopPlay({target: e.target.documentElement});
+
+        document.addEventListener('DOMNodeInserted', removeBlockers);
+        removeBlockers({target: e.target.documentElement});
     });
 }
 
 
 function stopPlay(e) {
     if (!e.target.getElementsByTagName) return;
-    var videos = [].slice.call(e.target.getElementsByTagName('video'));
-    videos.forEach(function (vid) {
+    [].forEach.call(e.target.getElementsByTagName('video'), function (vid) {
+        var vidRect = vid.getBoundingClientRect();
+        [].forEach.call(e.target.ownerDocument.children, function (el) {
+            var otherRect = el.getBoundingClientRect();
+            if (
+                Math.abs(vidRect.top - otherRect.top) < 5 &&
+                Math.abs(vidRect.right - otherRect.right) < 5 &&
+                Math.abs(vidRect.bottom - otherRect.bottom) < 5 &&
+                Math.abs(vidRect.left - otherRect.left) < 5
+            )
+                el.parentNode.removeChild(el);
+        });
         console.log("stopPlay video", vid.name, vid.id, vid.className);
         vid.pause();
         vid.autoplay = false;
@@ -58,6 +71,35 @@ function stopPlay(e) {
             this.pause();
         });
     });
+}
+
+
+function removeBlockers(e) {
+    if (!e.target.querySelectorAll || e.target.tagName in {SCRIPT: 1, VIDEO: 1}) return true;
+    var newElems = [].slice.call(e.target.querySelectorAll('*'))
+        .concat([e.target])
+        .filter(function (el) { return el.tagName !== 'VIDEO' && !el.querySelectorAll('video').length; });
+    var vidRects = [].slice.call(e.target.ownerDocument.getElementsByTagName('video'))
+        .map(function (el) {
+            return el.getBoundingClientRect();
+        })
+        .filter(function (rect) {
+            return rect.width || rect.height;
+        });
+    newElems.forEach(function (el) {
+        var otherRect = el.getBoundingClientRect();
+        var isOverlay = vidRects.some(function (vidRect) {
+            return (
+            Math.abs(vidRect.top - otherRect.top) < 5 &&
+            Math.abs(vidRect.right - otherRect.right) < 5 &&
+            Math.abs(vidRect.bottom - otherRect.bottom) < 5 &&
+            Math.abs(vidRect.left - otherRect.left) < 5
+            );
+        });
+        if (isOverlay)
+            el.style.pointerEvents = 'none';
+    });
+    return true;
 }
 
 
