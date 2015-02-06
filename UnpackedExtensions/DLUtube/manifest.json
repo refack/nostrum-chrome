@@ -12,5 +12,8 @@
   "manifest_version": 2,
   "name": "Download YouTube Videos",
   "version": "2.0.0",
-  "web_accessible_resources": ["contextmenu_fix_injected.js"]
+  "web_accessible_resources": [
+    "dlutube_ico_trim.png",
+    "contextmenu_fix_injected.js"
+  ]
 }
