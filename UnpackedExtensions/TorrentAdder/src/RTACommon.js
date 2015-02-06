@@ -33,7 +33,7 @@
                 } else if (res.hash) {
                     opts.title = "Duplicate";
                     opts.iconUrl = "icons/ex_alpha.png";
-                    opts.message = "\n\nFound a torrent with this hash on server:\n\n" + res.hash;
+                    opts.message = "Found a torrent with this hash on server:\n\n" + res.hash;
                 } else {
                     opts.title = "Error";
                     opts.iconUrl = "icons/ex_alpha.png";
@@ -78,7 +78,7 @@
                     return $.ajax(newURI, {type: 'HEAD'});
                 }).always(function (res) {
                     if (res && res.error && !res.success) return cb(res);
-                    request.url = (res.status < 300) ? newURI : request.url;
+                    request.url = (!res || res.status < 300) ? newURI : request.url;
                     return server.add(request, cb);
                 });
             } else {
