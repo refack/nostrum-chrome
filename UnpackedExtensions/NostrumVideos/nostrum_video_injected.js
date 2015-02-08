@@ -1,6 +1,5 @@
 'use strict';
-/*global document,location,chrome */
-var DL_ICON_URL = chrome.extension.getURL('dlutube_ico_trim.png');
+/*global window,document,location,EventTarget,HTMLMediaElement */
 var RANDOM = Math.floor(Math.random() * 1234567890);
 var CONTAINER_ID = 'download-youtube-video' + RANDOM;
 var BUTTON_ID = 'download-youtube-video-button' + RANDOM;
@@ -22,10 +21,17 @@ var FORMAT_LABEL = {
 };
 
 
+EventTarget.prototype.__addEventListener = EventTarget.prototype.addEventListener;
+EventTarget.prototype.addEventListener = function monkeyAttachEvent(type, originalHandler, capture) {
+    if (type != "contextmenu")
+        this.__addEventListener(type, originalHandler, capture);
+    else
+        this.__addEventListener(type, function monkeyHandler(e) {
+            if (e.ctrlKey) return;
+            return originalHandler.call(this, e);
+        }, capture);
+};
 
-var scp = document.createElement('script');
-scp.setAttribute('src', chrome.extension.getURL('contextmenu_fix_injected.js'));
-document.documentElement.appendChild(scp);
 
 if (~location.href.indexOf('youtube')) {
     document.addEventListener('DOMContentLoaded', function (e) {
@@ -34,43 +40,68 @@ if (~location.href.indexOf('youtube')) {
     });
 }
 
-if (!~location.href.indexOf('&list=') || !~location.href.indexOf('&index=')) {
-    document.addEventListener('DOMContentLoaded', function (e) {
-        document.addEventListener('click', function () { this.__global_clicked = true; }, true);
-        document.addEventListener('DOMNodeInserted', stopPlay);
-        stopPlay({target: e.target.documentElement});
 
-        document.addEventListener('DOMNodeInserted', removeBlockers);
-        removeBlockers({target: e.target.documentElement});
+document.addEventListener('DOMContentLoaded', function (e) {
+    removeBlockers({target: e.target.documentElement});
+    document.addEventListener('DOMNodeInserted', removeBlockers);
+});
+
+if (~location.href.indexOf('&list=') && ~location.href.indexOf('&index='))
+    window.__global_clicked = true;
+
+document.addEventListener('DOMNodeInserted', stopPlay);
+document.addEventListener('click', function () {
+    window.__global_clicked = true;
+    return true;
+}, true);
+
+
+var _HTMLVideoElement_CTOR = window.HTMLVideoElement.prototype.constructor;
+window.HTMLVideoElement.prototype.constructor = function () {
+    console.log('HTMLVideoElement ctor hit');
+    _HTMLVideoElement_CTOR.apply(this, arguments);
+};
+
+function stopPlay(e) {
+    if (!e.target.querySelectorAll) return;
+    var vids = [].slice.call(e.target.querySelectorAll('video, audio, source'));
+    if (e.target instanceof HTMLMediaElement) vids.push(e.target);
+    vids.forEach(function (vid) {
+        if (vid.__nostrum_paused) return;
+        vid.__nostrum_paused = true;
+        console.log("stopPlay name:[%s] id:[%s] class:[%s]", vid.name, vid.id, vid.className);
+        if (vid.player) {
+            if (vid.player.options) {
+                vid.player.options.autoplay = false;
+                delete vid.player.options.ads;
+            }
+            try {
+                vid.player.pause();
+            } catch (e) {}
+        }
+        vid.autoplay = false;
+        try {
+            vid.pause();
+        } catch (e) {}
+        vid.addEventListener('error', onEventPauser);
+        vid.addEventListener('loadedmetadata', onEventPauser);
+        vid.addEventListener('loadeddata', onEventPauser);
+        vid.addEventListener('canplay', onEventPauser);
+        vid.addEventListener('canplaythrough', onEventPauser);
+        vid.addEventListener('load', onEventPauser);
+        vid.addEventListener('play', onEventPauser);
+        vid.addEventListener('playing', onEventPauser);
+        vid.addEventListener('waiting', onEventPauser);
     });
 }
 
-
-function stopPlay(e) {
-    if (!e.target.getElementsByTagName) return;
-    [].forEach.call(e.target.getElementsByTagName('video'), function (vid) {
-        var vidRect = vid.getBoundingClientRect();
-        [].forEach.call(e.target.ownerDocument.children, function (el) {
-            var otherRect = el.getBoundingClientRect();
-            if (
-                Math.abs(vidRect.top - otherRect.top) < 5 &&
-                Math.abs(vidRect.right - otherRect.right) < 5 &&
-                Math.abs(vidRect.bottom - otherRect.bottom) < 5 &&
-                Math.abs(vidRect.left - otherRect.left) < 5
-            )
-                el.parentNode.removeChild(el);
-        });
-        console.log("stopPlay video", vid.name, vid.id, vid.className);
-        vid.pause();
-        vid.autoplay = false;
-        vid.addEventListener('play', function (e) {
-            if (this.paused) return;
-            if (e.target.ownerDocument.__global_clicked) return;
-            console.log("on play - pausing video", this.name, this.id, this.className);
-            e.preventDefault();
-            this.pause();
-        });
-    });
+function onEventPauser(e) {
+    //jshint -W040
+    if (this.paused) return;
+    if (window.__global_clicked) return;
+    console.log("on play - pausing", this.name, this.id, this.className);
+    e.preventDefault();
+    this.pause();
 }
 
 
@@ -107,15 +138,15 @@ function parseUTube(e) {
     if (!e.target.innerHTML.match(/url_encoded_fmt_stream_map/))
         return;
 
-    var document = e.target.ownerDocument;
-    if (document.getElementById(CONTROL_BUTTON_ID) || document.getElementById(BUTTON_ID)) return;
+    var theDoc = e.target.ownerDocument;
+    if (theDoc.getElementById(CONTROL_BUTTON_ID) || theDoc.getElementById(BUTTON_ID)) return;
 
     var textDirection = 'left';
-    if (document.body.getAttribute('dir') === 'rtl') {
+    if (theDoc.body.getAttribute('dir') === 'rtl') {
         textDirection = 'right';
     }
 
-    var videoPlayer = document.getElementById('watch7-player');
+    var videoPlayer = theDoc.getElementById('watch7-player');
     var videoFormatsMatches = (videoPlayer) ?
         videoPlayer.innerHTML.match(/(?:"|&amp;)url_encoded_fmt_stream_map=([^(&|$)]+)/) :
         (e.target.innerHTML).match(/"url_encoded_fmt_stream_map":\s*"([^"]+)"/);
@@ -123,7 +154,7 @@ function parseUTube(e) {
 
 
 // video title
-    var videoTitle = document.title || 'video';
+    var videoTitle = theDoc.title || 'video';
     videoTitle = videoTitle.replace(/\s*\-\s*YouTube$/i, '');
     videoTitle = videoTitle.replace(/[#"\?:\*]/g, '').replace(/[&\|\\\/]/g, '_').replace(/'/g, '\'').replace(/^\s+|\s+$/g, '').replace(/\.+$/g, '');
 
@@ -181,9 +212,9 @@ function parseUTube(e) {
     }
 
 // find parent container
-    var controls = document.querySelector('.html5-player-chrome');
+    var controls = theDoc.querySelector('.html5-player-chrome');
     if (controls) {
-        var controlButInner = document.createElement('div');
+        var controlButInner = theDoc.createElement('div');
         controlButInner.setAttribute('class', '');
         controlButInner.appendChild(generateDlMenu(videoURL, true));
         controlButInner.setAttribute('style', 'display:none;');
@@ -192,12 +223,12 @@ function parseUTube(e) {
         controlButInner.setAttribute('role', 'menu');
         controlButInner.setAttribute('aria-hidden', 'true');
 
-        var controlsContainer = document.querySelector('.html5-video-controls');
+        var controlsContainer = theDoc.querySelector('.html5-video-controls');
         controlsContainer.appendChild(controlButInner);
 
-        var controlBut = document.createElement('div');
+        var controlBut = theDoc.createElement('div');
         controlBut.setAttribute('class', 'ytp-button ytp-button-watch-later');
-        controlBut.setAttribute('style', 'background: url(' + DL_ICON_URL + ') center no-repeat;');
+        controlBut.setAttribute('style', 'background: url(' + window.DL_ICON_URL + ') center no-repeat;');
         controlBut.setAttribute('role', 'button');
         controlBut.setAttribute('aria-haspopup', 'true');
         controlBut.setAttribute('id', CONTROL_BUTTON_ID);
@@ -209,23 +240,23 @@ function parseUTube(e) {
         controls.appendChild(controlBut);
     }
 
-    var parentElement = document.getElementById('watch8-secondary-actions');
+    var parentElement = theDoc.getElementById('watch8-secondary-actions');
     if (parentElement) {
         // generate download code
-        var spanButton = document.createElement('span');
+        var spanButton = theDoc.createElement('span');
         spanButton.setAttribute('class', 'yt-uix-button-content');
-        spanButton.appendChild(document.createTextNode("Download "));
+        spanButton.appendChild(theDoc.createTextNode("Download "));
 
-        var imgButton = document.createElement('img');
+        var imgButton = theDoc.createElement('img');
         imgButton.setAttribute('class', 'yt-uix-button-arrow');
         imgButton.setAttribute('src', '//s.ytimg.com/yt/img/pixel-vfl3z5WfW.gif');
 
-        var mainSpan = document.createElement('span');
+        var mainSpan = theDoc.createElement('span');
         mainSpan.appendChild(spanButton);
         mainSpan.appendChild(imgButton);
         mainSpan.appendChild(generateDlMenu(videoURL));
 
-        var buttonElement = document.createElement('button');
+        var buttonElement = theDoc.createElement('button');
         buttonElement.setAttribute('id', BUTTON_ID);
         buttonElement.setAttribute('class', 'yt-uix-button yt-uix-tooltip yt-uix-button-empty yt-uix-button-text');
         buttonElement.setAttribute('style', 'margin-top:4px; margin-left:' + ((textDirection === 'left') ? 5 : 10) + 'px;');
@@ -236,9 +267,9 @@ function parseUTube(e) {
         buttonElement.appendChild(mainSpan);
 
         // add the button
-        var containerSpan = document.createElement('span');
+        var containerSpan = theDoc.createElement('span');
         containerSpan.setAttribute('id', CONTAINER_ID);
-        containerSpan.appendChild(document.createTextNode(' '));
+        containerSpan.appendChild(theDoc.createTextNode(' '));
         containerSpan.appendChild(buttonElement);
 
         parentElement.appendChild(containerSpan);
@@ -268,3 +299,5 @@ function generateDlMenu(videoURL, isShow) {
     }
     return listItems;
 }
+
+
