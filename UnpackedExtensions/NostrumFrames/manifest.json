@@ -1,24 +1,36 @@
 {
-   "background" : {
-      "persistent" : true,
-      "scripts" : [ "background.js" ]
-   },
-   "content_scripts": [
-      {
-         "matches": ["<all_urls>"],
-         "all_frames": true,
-         "js": ["handleclicks.js"],
-         "run_at": "document_start"
-      }
-   ],
-   "description" : "Adds context menu items to open a frame a new tab etc.",
-   "icons" : {
-      "128" : "icon128.png",
-      "16" : "icon16.png",
-      "48" : "icon48.png"
-   },
-   "manifest_version" : 2,
-   "name" : "Nostrum Frames",
-   "permissions" : [ "<all_urls>", "tabs", "clipboardWrite", "contextMenus" ],
-   "version" : "1.0.0"
+  "background": {
+    "persistent": true,
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "all_frames": true,
+      "js": ["nostrum_frames_content.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "all_frames": true,
+      "js": ["nostrum_frames_visited_content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "description": "Adds context menu items to open a frame a new tab etc.",
+  "icons": {
+    "128": "icon128.png",
+    "16": "icon16.png",
+    "48": "icon48.png"
+  },
+  "manifest_version": 2,
+  "name": "Nostrum Frames",
+  "permissions": [
+    "<all_urls>",
+    "tabs",
+    "clipboardWrite",
+    "contextMenus",
+    "history"
+  ],
+  "version": "1.0.0"
 }

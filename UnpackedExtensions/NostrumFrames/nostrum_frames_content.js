@@ -8,16 +8,12 @@ document.addEventListener("mousedown", clickCapture, true);
 function clickCapture(e) {
     if (!(e.ctrlKey && e.button === 0) && e.button !== 1) return true;
 
-    var link = getAncestorOrSelfTag(e.target, 'A');
-    if (!link)
+    var link = e.path && [].filter.call(e.path, function (n) { return n.tagName === 'A'; })[0];
+    if (!link) {
         e.preventDefault();
-    else
+    } else {
         e.stopPropagation();
+        link.classList.add('nostrum-visited');
+    }
     return true;
-}
-
-
-function getAncestorOrSelfTag(node, tag) {
-    while (node && node.tagName !== tag) { node = node.parentNode; }
-    return node;
 }

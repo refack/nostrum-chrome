@@ -24,8 +24,35 @@ var COMMANDS = {
     }
 };
 
+var cache = {};
+chrome.history.search({
+    text: '',
+    startTime: Date.now() - (1000 * 60 * 60 * 24 * 30),
+    maxResults: 100000
+}, function (res) {
+    res.forEach(function (r) { cache[r.url] = true; });
+});
+
+
+function resolveVisited(hs, cb) {
+    hs = hs.filter(function (h) { return h in cache; });
+    return cb(hs);
+
+}
 
 chrome.runtime.onInstalled.addListener(function () {
     for (var label in COMMANDS)
         chrome.contextMenus.create({id: label, title: label, contexts: ['frame'], onclick: COMMANDS[label]});
+});
+
+
+chrome.runtime.onMessage.addListener(function (request, sender, cb) {
+    if (request.resolve) {
+        resolveVisited(request.resolve, cb);
+    }
+});
+
+
+chrome.history.onVisited.addListener(function (r) {
+    cache[r.url] = true;
 });

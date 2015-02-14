@@ -5,11 +5,14 @@
       <w>clickable</w>
       <w>contextmenu</w>
       <w>dlutube</w>
+      <w>docu</w>
       <w>elems</w>
+      <w>itag</w>
       <w>listitem</w>
       <w>mousedown</w>
       <w>netrc</w>
       <w>pauser</w>
+      <w>preventer</w>
       <w>rects</w>
       <w>utube</w>
       <w>vids</w>
