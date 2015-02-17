@@ -1,10 +1,18 @@
 'use strict';
 /*global document,chrome */
+function onHead(e) {
+    var head = e.currentTarget.querySelector('head');
+    if (!head) return true;
 
-var scp_global = document.createElement('script');
-scp_global.appendChild(document.createTextNode('window.DL_ICON_URL = "' + chrome.extension.getURL('nostrum_video_ico_trim.png') + '"'));
-document.documentElement.appendChild(scp_global);
+    // jshint -W040
+    this.removeEventListener(e.type, onHead);
 
-var scp_injector = document.createElement('script');
-scp_injector.setAttribute('src', chrome.extension.getURL('nostrum_video_injected.js'));
-document.documentElement.insertBefore(scp_injector, document.documentElement.firstChild);
+    var scp_injector = document.createElement('script');
+    scp_injector.setAttribute('id', '__nostrum_video_injected');
+    scp_injector.setAttribute('src', chrome.extension.getURL('nostrum_video_injected.js'));
+    scp_injector.dataset.iconurl = chrome.extension.getURL('nostrum_video_ico_trim.png');
+    head.insertBefore(scp_injector, head.firstChild);
+    return true;
+}
+document.documentElement.addEventListener('DOMNodeInserted', onHead);
+
