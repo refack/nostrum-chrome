@@ -1,5 +1,5 @@
 'use strict';
-/*global window,document,location,EventTarget,XMLHttpRequest */
+/*global window,document,location,EventTarget */
 window.NodeList.prototype.toArray = function toArray() { return Array.prototype.slice.call(this); };
 (function (window) {
     var r1 = function (c) { return sf((c <= "Z" ? 90 : 122) >= (c = cc(c) + 13) ? c : c - 26); },
@@ -47,7 +47,7 @@ else
 [].forEach.call(document.querySelectorAll('video, audio, source'), stopPlay.bind(undefined, "document_start"));
 document.addEventListener('DOMNodeInserted', function (e) {
     if (e.target.nodeName in {VIDEO: 1, AUDIO: 1, SOURCE: 1}) {
-        parseUTube(e.type, e.target);
+        stopPlay(e.type, e.target);
     } else if (e.target.querySelectorAll) {
         [].forEach.call(e.target.querySelectorAll('video, audio, source'), stopPlay.bind(undefined, e.type));
     }
@@ -139,6 +139,82 @@ function removeBlockers(e) {
 }
 
 
+function parseUTube(e) {
+    if (!e || !e.target || e.target.nodeName == "#text") return;
+    var elems = (e.target.nodeName == 'SCRIPT') ? [e.target] : e.target.querySelectorAll("script").toArray();
+    var elem = elems.filter(function (e) {
+        return e.innerHTML && e.innerHTML.match(window.YTPK);
+    })[0];
+    if (!elem) return;
+
+    var theDoc = elem.ownerDocument;
+    theDoc.removeEventListener('DOMNodeInserted', parseUTube);
+    if (theDoc.getElementById(CONTROL_BUTTON_ID) || theDoc.getElementById(BUTTON_ID)) return;
+
+    var videoInfo = parseNewStyle(elem);
+    videoInfo.videoTitle = (theDoc.title || 'video')
+        .replace(/^[\s.\-]+|[\s\.\-]*(YouTube)?$/gi, '')
+        .replace(/["\?:\*\\\/]/g, ' _ ')
+        .replace(/\s+/g, ' ')
+        .replace(/./g, function (m) { return m.charCodeAt(0) > 8000 ? '' : m; });
+
+    createContrulButton(theDoc, videoInfo);
+    createMenuOption(theDoc, videoInfo);
+}
+
+
+function parseNewStyle(element) {
+    function ht(a) {
+        var gt = {
+            Mu: function (a, b) {
+                a.splice(0, b);
+            },
+            hQ: function (a, b) {
+                var c = a[0];
+                a[0] = a[b % a.length];
+                a[b] = c;
+            },
+            Rb: function (a) {
+                a.reverse();
+            }
+        };
+
+        a = a.split("");
+        gt.hQ(a, 70);
+        gt.Rb(a, 40);
+        gt.hQ(a, 66);
+        gt.Mu(a, 1);
+        gt.hQ(a, 70);
+        gt.hQ(a, 26);
+        gt.Rb(a, 37);
+        gt.hQ(a, 48);
+        return a.join("");
+    }
+
+    var videoInfo = {};
+    var docu = element.ownerDocument;
+    videoInfo.textDirection = docu.body.getAttribute('dir') === 'rtl' ? 'right' : 'left';
+
+    var videoFormatsMatches = element.innerHTML.match(/"url_encoded_fmt_stream_map":\s*"([^"]+)"/);
+    if (!videoFormatsMatches) return null;
+    var videoFormatsRaw = videoFormatsMatches[1];
+
+    var sep1 = ',', sep2 = '\\u0026', sep3 = '=';
+    videoInfo.videoURLs = videoFormatsRaw.split(sep1).map(function (vid) {
+        var vidInfo = vid.split(sep2)
+            .map(function (p) { return p.split(sep3); })
+            .reduce(function (seed, pp) {
+                seed[pp[0]] = decodeURIComponent(pp[1]);
+                return seed;
+            }, {});
+        if (vidInfo.s)
+            vidInfo.url += '&signature=' + ht(vidInfo.s);
+        return vidInfo;
+    });
+    return videoInfo;
+}
+
+
 function createMenuOption(theDoc, videoInfo) {
 // mangle secondary actions
     var parentElement = theDoc.getElementById('watch8-secondary-actions');
@@ -210,83 +286,6 @@ function createContrulButton(theDoc, videoInfo) {
 }
 
 
-function parseUTube(e) {
-    if (!e || !e.target || e.target.nodeName == "#text") return;
-    var elems = (e.target.nodeName == 'SCRIPT') ? [e.target] : e.target.querySelectorAll("script").toArray();
-    var elem = elems.filter(function (e) { return e.innerHTML && e.innerHTML.match(window.YTPK); })[0];
-    if (!elem) return;
-
-    var theDoc = elem.ownerDocument;
-    theDoc.removeEventListener('DOMNodeInserted', parseUTube);
-    if (theDoc.getElementById(CONTROL_BUTTON_ID) || theDoc.getElementById(BUTTON_ID)) return;
-
-    var videoInfo = parseNewStyle2(elem);
-    var httpRequest = new XMLHttpRequest();
-    httpRequest.open('HEAD', videoInfo.videoURLs[0].url);
-    httpRequest.onload = function (e) {
-        if (e.target.status >= 300) videoInfo = parseNewStyle(elem);
-
-        videoInfo.videoTitle = (theDoc.title || 'video')
-            .replace(/^[\s.\-]+|[\s\.\-]*(YouTube)?$/gi, '')
-            .replace(/["\?:\*\\\/]/g, ' _ ')
-            .replace(/\s+/g, ' ')
-            .replace(/./g, function (m) { return m.charCodeAt(0) > 8000 ? '' : m; });
-
-        createContrulButton(theDoc, videoInfo);
-        createMenuOption(theDoc, videoInfo);
-    };
-    httpRequest.send();
-}
-
-
-function parseNewStyle(element) {
-    var videoInfo = {};
-    var docu = element.ownerDocument;
-    videoInfo.textDirection = docu.body.getAttribute('dir') === 'rtl' ? 'right' : 'left';
-
-    var videoFormatsMatches = element.innerHTML.match(/"adaptive_fmts":\s*"([^"]+)"/);
-    if (!videoFormatsMatches) return null;
-    var videoFormatsRaw = videoFormatsMatches[1];
-
-    var sep1 = ',', sep2 = '\\u0026', sep3 = '=';
-    videoInfo.videoURLs = videoFormatsRaw.split(sep1).map(function (vid) {
-        var vidInfo = vid.split(sep2)
-            .map(function (p) { return p.split(sep3); })
-            .reduce(function (seed, pp) {
-                seed[pp[0]] = decodeURIComponent(pp[1]);
-                return seed;
-            }, {});
-        return vidInfo;
-    });
-    return videoInfo;
-}
-
-
-function parseNewStyle2(element) {
-    var videoInfo = {};
-    var docu = element.ownerDocument;
-    videoInfo.textDirection = docu.body.getAttribute('dir') === 'rtl' ? 'right' : 'left';
-
-    var videoFormatsMatches = element.innerHTML.match(/"url_encoded_fmt_stream_map":\s*"([^"]+)"/);
-    if (!videoFormatsMatches) return null;
-    var videoFormatsRaw = videoFormatsMatches[1];
-
-    var sep1 = ',', sep2 = '\\u0026', sep3 = '=';
-    videoInfo.videoURLs = videoFormatsRaw.split(sep1).map(function (vid) {
-        var vidInfo = vid.split(sep2)
-            .map(function (p) { return p.split(sep3); })
-            .reduce(function (seed, pp) {
-                seed[pp[0]] = decodeURIComponent(pp[1]);
-                return seed;
-            }, {});
-        if (vidInfo.s)
-            vidInfo.url += '&signature=' + ht(vidInfo.s);
-        return vidInfo;
-    });
-    return videoInfo;
-}
-
-
 function generateDlMenu(videoInfo, isShow) {
     var listItems = document.createElement('ol');
     listItems.hide = function () { if (this.parentNode) this.parentNode.hidden = true; }.bind(listItems);
@@ -310,31 +309,4 @@ function generateDlMenu(videoInfo, isShow) {
         listItems.insertBefore(listItem, listItems.firstChild);
     });
     return listItems;
-}
-
-var gt = {
-    Mu: function (a, b) {
-        a.splice(0, b);
-    },
-    hQ: function (a, b) {
-        var c = a[0];
-        a[0] = a[b % a.length];
-        a[b] = c;
-    },
-    Rb: function (a) {
-        a.reverse();
-    }
-};
-
-function ht(a) {
-    a = a.split("");
-    gt.hQ(a, 70);
-    gt.Rb(a, 40);
-    gt.hQ(a, 66);
-    gt.Mu(a, 1);
-    gt.hQ(a, 70);
-    gt.hQ(a, 26);
-    gt.Rb(a, 37);
-    gt.hQ(a, 48);
-    return a.join("");
 }
