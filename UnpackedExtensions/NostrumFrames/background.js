@@ -49,6 +49,8 @@ chrome.runtime.onInstalled.addListener(function () {
 chrome.runtime.onMessage.addListener(function (request, sender, cb) {
     if (request.resolve) {
         resolveVisited(request.resolve, cb);
+    } else if (request.kill) {
+        chrome.tabs.query({active: true}, function (tabs) { chrome.tabs.remove(tabs[0].id); });
     }
 });
 
