@@ -43,6 +43,7 @@ chrome.extension.sendRequest({"action": "getStorageData"}, function (response) {
                 window.location.href = hrefElem.href;
             }
         });
+        hrefElem.classList.add('nostrum-visited');
         return false;
     }, true);
 });

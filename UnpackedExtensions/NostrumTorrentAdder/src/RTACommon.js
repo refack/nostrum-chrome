@@ -18,7 +18,7 @@
 
 
         getTorrent: function (request, cb) {
-            var interval;
+            var progressInterval;
 
             function cb1(res) {
                 var opts = {progress: 100};
@@ -39,7 +39,9 @@
                     opts.iconUrl = "icons/ex_alpha.png";
                     opts.message = "Server didn't accept data:\n" + ((res.resp && res.resp.error) || res.statusText);
                 }
-                clearInterval(interval);
+                if (opts.title != 'Error') chrome.history.addUrl({url: request.url});
+                clearInterval(progressInterval);
+                progressInterval = 0;
                 chrome.notifications.update(nId, opts, function () {
                     setTimeout(chrome.notifications.clear.bind(chrome.notifications, nId, $.noop), 3000);
                     nCB();
@@ -56,11 +58,14 @@
             };
             var nId = String(Date.now());
             chrome.notifications.create(nId, opts, function () {
-                interval = setInterval(function () {
+                progressInterval = setInterval(function () {
                     opts.progress += 30;
                     var pOpt = {progress: (opts.progress / 10) % 100};
                     chrome.notifications.update(nId, pOpt, $.noop);
                 }, 60);
+                setTimeout(function cleanup() {
+                    if (progressInterval) clearInterval(progressInterval);
+                }, 60 * 1000);
                 RTA._getTorrent(request, cb1);
             });
         },
