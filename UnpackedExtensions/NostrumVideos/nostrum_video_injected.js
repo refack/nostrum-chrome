@@ -14,30 +14,39 @@ var BUTTON_ID = 'download-youtube-video-button' + RANDOM;
 var CONTROL_BUTTON_ID = 'DLUtube-control-button' + RANDOM;
 
 
-EventTarget.prototype.__addEventListener = EventTarget.prototype.addEventListener;
+EventTarget.__addEventListener = EventTarget.prototype.addEventListener;
 EventTarget.prototype.addEventListener = function monkeyAttachEvent(type, originalHandler, capture) {
-    if (type != "contextmenu")
-        this.__addEventListener(type, originalHandler, capture);
-    else
-        this.__addEventListener(type, function monkeyHandler(e) {
-            if (e.ctrlKey) return;
-            return originalHandler.call(this, e);
-        }, capture);
+    function monkeyHandler(e) {
+        if (e.ctrlKey) return;
+        return originalHandler.call(target, e);
+    }
+
+    var target = this || window;
+    var handler = type == "contextmenu" ? monkeyHandler : originalHandler;
+    EventTarget.__addEventListener.call(target, type, handler, capture);
 };
 
 
-if (~location.href.indexOf('youtube')) {
-    turnAnnotationsOff();
-    document.addEventListener('DOMNodeInserted', parseUTube);
-    parseUTube({target: document});
-}
+if (document.readyState === "interactive")
+    handleDomContentLoaded({target: document});
+else
+    document.addEventListener('DOMContentLoaded', handleDomContentLoaded);
 
 
-document.addEventListener('DOMContentLoaded', function (e) {
+function handleDomContentLoaded(e) {
     removeBlockers({target: e.target.documentElement});
     document.addEventListener('DOMNodeInserted', removeBlockers);
-});
 
+    if (!~location.href.indexOf('youtube')) return;
+    turnYouTubeAnnotationsOff();
+    parseUTube({target: document}, true);
+    if (document.__NVI) {
+        createContrulButton(document, document.__NVI);
+        createMenuOption(document, document.__NVI);
+    } else {
+        document.addEventListener('DOMNodeInserted', parseUTube);
+    }
+}
 
 if (~location.href.indexOf('&list=') && ~location.href.indexOf('&index='))
     window.__global_clicked = true;
@@ -54,13 +63,10 @@ document.addEventListener('DOMNodeInserted', function (e) {
 });
 
 
-function turnAnnotationsOff() {
-    document.addEventListener('DOMContentLoaded', function () {
-        var annOffButton = document.querySelector("div[aria-label=Annotations] > div");
-        if (annOffButton) annOffButton.click();
-    });
+function turnYouTubeAnnotationsOff() {
+    var annOffButton = document.querySelector("div[aria-label=Annotations] > div");
+    if (annOffButton) annOffButton.click();
 }
-
 
 function userClickMarker(e) {
     // jshint -W040
@@ -139,27 +145,30 @@ function removeBlockers(e) {
 }
 
 
-function parseUTube(e) {
+function parseUTube(e, isDomLoaded) {
     if (!e || !e.target || e.target.nodeName == "#text") return;
+
     var elems = (e.target.nodeName == 'SCRIPT') ? [e.target] : e.target.querySelectorAll("script").toArray();
-    var elem = elems.filter(function (e) {
-        return e.innerHTML && e.innerHTML.match(window.YTPK);
+    var vidInfoElem = elems.filter(function (e) {
+        var inner = e.innerHTML || "";
+        return inner.match(window.YTPK);
     })[0];
-    if (!elem) return;
+    if (!vidInfoElem) return;
 
-    var theDoc = elem.ownerDocument;
+    var theDoc = vidInfoElem.ownerDocument;
     theDoc.removeEventListener('DOMNodeInserted', parseUTube);
-    if (theDoc.getElementById(CONTROL_BUTTON_ID) || theDoc.getElementById(BUTTON_ID)) return;
 
-    var videoInfo = parseNewStyle(elem);
-    videoInfo.videoTitle = (theDoc.title || 'video')
+    theDoc.__NVI = parseNewStyle(vidInfoElem);
+    theDoc.__NVI.videoTitle = (theDoc.title || 'video')
         .replace(/^[\s.\-]+|[\s\.\-]*(YouTube)?$/gi, '')
         .replace(/["\?:\*\\\/]/g, ' _ ')
         .replace(/\s+/g, ' ')
         .replace(/./g, function (m) { return m.charCodeAt(0) > 8000 ? '' : m; });
 
-    createContrulButton(theDoc, videoInfo);
-    createMenuOption(theDoc, videoInfo);
+    if (!isDomLoaded) {
+        createContrulButton(theDoc, theDoc.__NVI);
+        createMenuOption(theDoc, theDoc.__NVI);
+    }
 }
 
 
