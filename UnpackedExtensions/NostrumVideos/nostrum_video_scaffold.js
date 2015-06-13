@@ -14,5 +14,6 @@ function onHead(e) {
     head.insertBefore(scp_injector, head.firstChild);
     return true;
 }
-document.documentElement.addEventListener('DOMNodeInserted', onHead);
+if (!~location.href.indexOf('https://plus.google.com/hangouts/'))
+	document.documentElement.addEventListener('DOMNodeInserted', onHead);
 

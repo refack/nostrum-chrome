@@ -1,5 +1,6 @@
-'use strict';
 /*global window,document,location,EventTarget */
+(function () {
+'use strict';
 window.NodeList.prototype.toArray = function toArray() { return Array.prototype.slice.call(this); };
 (function (window) {
     var r1 = function (c) { return sf((c <= "Z" ? 90 : 122) >= (c = cc(c) + 13) ? c : c - 26); },
@@ -34,8 +35,10 @@ else
 
 
 function handleDomContentLoaded(e) {
-    removeBlockers({target: e.target.documentElement});
-    document.addEventListener('DOMNodeInserted', removeBlockers);
+    if (!window.__nostrum_no_remove) {
+        removeBlockers({target: e.target.documentElement});
+        document.addEventListener('DOMNodeInserted', removeBlockers);
+    }
 
     if (!~location.href.indexOf('youtube')) return;
     turnYouTubeAnnotationsOff();
@@ -48,19 +51,28 @@ function handleDomContentLoaded(e) {
     }
 }
 
-if (~location.href.indexOf('&list=') && ~location.href.indexOf('&index='))
+if (
+    (~location.href.indexOf('&list=') && ~location.href.indexOf('&index='))
+    ||
+    ~location.href.indexOf('plus.google.com/hangouts/')
+) {
+    window.__nostrum_no_remove = true;
     window.__global_clicked = true;
-else
-    document.addEventListener('mousedown', userClickMarker, true);
+    return;
+}
+
+window.document.addEventListener('mousedown', userClickMarker, true);
 
 [].forEach.call(document.querySelectorAll('video, audio, source'), stopPlay.bind(undefined, "document_start"));
-document.addEventListener('DOMNodeInserted', function (e) {
+window.document.addEventListener('DOMNodeInserted', function (e) {
     if (e.target.nodeName in {VIDEO: 1, AUDIO: 1, SOURCE: 1}) {
         stopPlay(e.type, e.target);
     } else if (e.target.querySelectorAll) {
         [].forEach.call(e.target.querySelectorAll('video, audio, source'), stopPlay.bind(undefined, e.type));
     }
 });
+
+
 
 
 function turnYouTubeAnnotationsOff() {
@@ -72,7 +84,7 @@ function userClickMarker(e) {
     // jshint -W040
     if (e.screenX === 0 && e.screenY === 0 && e.layerY < 0) return true;
     window.__global_clicked = true;
-    this.removeEventListener('click', userClickMarker, true);
+    this.removeEventListener('mousedown', userClickMarker, true);
     return true;
 }
 
@@ -319,3 +331,4 @@ function generateDlMenu(videoInfo, isShow) {
     });
     return listItems;
 }
+})()

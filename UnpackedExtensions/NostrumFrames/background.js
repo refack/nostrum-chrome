@@ -25,18 +25,22 @@ var COMMANDS = {
 };
 
 var cache = {};
+var negCache = {};
 chrome.history.search({
     text: '',
     startTime: Date.now() - (1000 * 60 * 60 * 24 * 30),
     maxResults: 100000
 }, function (res) {
-    res.forEach(function (r) { cache[r.url] = true; });
+    res.forEach(function (r) {
+        cache[r.url] = true;
+    });
 });
 
 
 function resolveVisited(hs, cb) {
-    hs = hs.filter(function (h) { return h in cache; });
-    return cb(hs);
+    var plus = hs.filter(function (h) { return h in cache; });
+    var nega = hs.filter(function (h) { return h in negCache; });
+    return cb({plus: plus, nega: nega});
 
 }
 
@@ -51,10 +55,17 @@ chrome.runtime.onMessage.addListener(function (request, sender, cb) {
         resolveVisited(request.resolve, cb);
     } else if (request.kill) {
         chrome.tabs.query({active: true}, function (tabs) { chrome.tabs.remove(tabs[0].id); });
+    } else if (request.negs) {
+        request.negs.forEach(function (h) {
+            if (!h || !h.length) return;
+            if (h in cache) return;
+            negCache[h] = true;
+        });
     }
 });
 
 
 chrome.history.onVisited.addListener(function (r) {
     cache[r.url] = true;
+    delete negCache[r.url];
 });

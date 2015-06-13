@@ -1,6 +1,6 @@
 'use strict';
 /* global chrome,document,$,window */
-var HASH_MATCHER = /\b[0-9a-fA-F]{25,40}\b/;
+var HASH_MATCHER = /\b([0-9a-fA-F]{40})\b/;
 var IGNORE_TAGS_MAP = {A: 1, SCRIPT: 1};
 var TRACKER_QUERY = [
     '.trackers dt a', // torrentz
@@ -71,7 +71,7 @@ function magnetize(e) {
             leafs.push(elem);
     }
     leafs.forEach(function (elem) {
-        var hash = HASH_MATCHER.exec(elem.innerHTML)[0];
+        var hash = HASH_MATCHER.exec(elem.innerHTML)[1];
         var magnet = 'magnet:?xt=urn:btih:' + hash + suffix;
         var magnet_a_html = '<a href="' + magnet + '">' + hash + '</a>';
         elem.innerHTML = elem.innerHTML.replace(hash, magnet_a_html);

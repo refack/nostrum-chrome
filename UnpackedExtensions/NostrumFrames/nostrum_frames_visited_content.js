@@ -1,6 +1,7 @@
 'use strict';
 /*global document, chrome */
 
+
 var map_a = [].reduce.call(
     document.querySelectorAll('a'),
     function (seed, a) {
@@ -12,15 +13,20 @@ var map_a = [].reduce.call(
     },
     {}
 );
-var httpRE = /^http/i;
-var urls = Object.keys(map_a).filter(httpRE.exec.bind(httpRE));
+
+
+var urls = Object.keys(map_a).filter(RegExp.prototype.exec.bind(/^http/i));
 if (urls.length) {
-    chrome.runtime.sendMessage({resolve: urls}, function (visitedURLs) {
-        visitedURLs.forEach(function (h) {
+    chrome.runtime.sendMessage({resolve: urls}, function (res) {
+        res.plus.forEach(function (h) {
             map_a[h].forEach(function (a) {
                 a.classList.add('nostrum-visited');
             });
         });
+        res.nega.forEach(function (h) {
+            map_a[h].forEach(function (a) {
+                a.classList.add('nostrum-bad');
+            });
+        });
     });
 }
-

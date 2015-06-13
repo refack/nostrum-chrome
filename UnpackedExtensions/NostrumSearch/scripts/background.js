@@ -161,37 +161,3 @@ function createMenu() {
 }
 // initialize menu
 createMenu();
-
-//open Options if first time
-
-function onInstall() {
-    messageVersion = chrome.i18n.getMessage("bg_installMessage");
-    chrome.tabs.create({"url": "options.html"});
-}
-
-function onUpdate() {
-    //console.log(prevVersion);
-    if (prevVersion != "0.2.1") {
-        messageVersion = chrome.i18n.getMessage("bg_updateMessage").replace("{VersionNumber}", currVersion);
-        chrome.tabs.create({"url": "options.html"});
-    }
-}
-
-function getVersion() {
-    var details = chrome.app.getDetails();
-    return details.version;
-}
-
-// Check if the version has changed.
-var currVersion = getVersion();
-var prevVersion = localStorage['version'];
-var messageVersion = "";
-if (currVersion != prevVersion) {
-    // Check if we just installed this extension.
-    if (typeof prevVersion == 'undefined') {
-        onInstall();
-    } else {
-        onUpdate();
-    }
-    localStorage['version'] = currVersion;
-}
