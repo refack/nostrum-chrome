@@ -1,6 +1,11 @@
 /*global window,document,location,EventTarget */
 (function () {
 'use strict';
+
+    if (~location.href.indexOf('mrskin.com')) {
+        Object.defineProperty(navigator, 'plugins', {value: []});
+    }
+
 window.NodeList.prototype.toArray = function toArray() { return Array.prototype.slice.call(this); };
 (function (window) {
     var r1 = function (c) { return sf((c <= "Z" ? 90 : 122) >= (c = cc(c) + 13) ? c : c - 26); },
@@ -31,30 +36,11 @@ EventTarget.prototype.addEventListener = function monkeyAttachEvent(type, origin
 if (document.readyState === "interactive")
     handleDomContentLoaded({target: document});
 else
-    document.addEventListener('DOMContentLoaded', handleDomContentLoaded);
+    window.addEventListener('load', handleDomContentLoaded);
 
-
-function handleDomContentLoaded(e) {
-    if (!window.__nostrum_no_remove) {
-        removeBlockers({target: e.target.documentElement});
-        document.addEventListener('DOMNodeInserted', removeBlockers);
-    }
-
-    if (!~location.href.indexOf('youtube')) return;
-    turnYouTubeAnnotationsOff();
-    parseUTube({target: document}, true);
-    if (document.__NVI) {
-        createContrulButton(document, document.__NVI);
-        createMenuOption(document, document.__NVI);
-    } else {
-        document.addEventListener('DOMNodeInserted', parseUTube);
-    }
-}
 
 if (
-    (~location.href.indexOf('&list=') && ~location.href.indexOf('&index='))
-    ||
-    ~location.href.indexOf('plus.google.com/hangouts/')
+    ~location.href.indexOf('&list=') && ~location.href.indexOf('&index=') || ~location.href.indexOf('plus.google.com/hangouts/') || ~location.href.indexOf('photos.google.com')
 ) {
     window.__nostrum_no_remove = true;
     window.__global_clicked = true;
@@ -73,12 +59,39 @@ window.document.addEventListener('DOMNodeInserted', function (e) {
 });
 
 
+    function handleDomContentLoaded(e) {
+        /*
+         if (!window.__nostrum_no_remove) {
+         removeBlockers({target: e.target.documentElement});
+         document.addEventListener('DOMNodeInserted', removeBlockers);
+         }
+         */
+        if (!~location.href.indexOf('//www.youtube')) return;
 
-
-function turnYouTubeAnnotationsOff() {
-    var annOffButton = document.querySelector("div[aria-label=Annotations] > div");
-    if (annOffButton) annOffButton.click();
+        var annOffButton = document.querySelector("div.ytp-settings-menu div.ytp-menuitem:nth-child(2)");
+        if (annOffButton) {
+            manipulateYouTube();
+        } else {
+            setTimeout(manipulateYouTube, 250);
+        }
+        parseUTube({target: document}, true);
+        if (document.__NVI) {
+            createContrulButton(document, document.__NVI);
+            createMenuOption(document, document.__NVI);
+        } else {
+            document.addEventListener('DOMNodeInserted', parseUTube);
+        }
 }
+
+
+    function manipulateYouTube() {
+        var annOffButton = document.querySelector("div.ytp-settings-menu div.ytp-menuitem:nth-child(2)");
+        if (annOffButton && annOffButton.getAttribute("aria-checked") === 'true') annOffButton.click();
+
+        var pauseButton = document.querySelector("button.ytp-play-button");
+        if (pauseButton && pauseButton.getAttribute("aria-label") === "Pause") pauseButton.click();
+    }
+
 
 function userClickMarker(e) {
     // jshint -W040

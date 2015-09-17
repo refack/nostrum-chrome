@@ -1,9 +1,8 @@
 'use strict';
-/*global document,window,chrome */
+/*global document,chrome */
 
 document.addEventListener("click", clickCapture, true);
 document.addEventListener("mousedown", clickCapture, true);
-document.addEventListener("dblclick", dblclickCapture, true);
 
 
 function clickCapture(e) {
@@ -19,11 +18,4 @@ function clickCapture(e) {
         chrome.runtime.sendMessage({negs: negs});
     }
     return true;
-}
-
-
-function dblclickCapture(e) {
-    if (!(e.ctrlKey && e.button === 0) && e.button !== 1) return true;
-
-	chrome.runtime.sendMessage({kill: true});
 }
