@@ -46,7 +46,9 @@
     "contextMenus",
     "history",
     "notifications",
-    "tabs"
+    "tabs",
+    "webRequest",
+    "webRequestBlocking"
   ],
   "short_name": "NTA",
   "update_url": "https://clients2.google.com/service/update2/crx",

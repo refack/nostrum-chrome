@@ -47,4 +47,24 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	}
 });
 
+
+	chrome.webRequest.onBeforeSendHeaders.addListener(function (details) {
+		var gotRef = false;
+		for (var n in details.requestHeaders) {
+			gotRef = details.requestHeaders[n].name.toLowerCase() == "referer";
+			if (gotRef) {
+				details.requestHeaders[n].value = details.url;
+				break;
+			}
+		}
+		if (!gotRef) {
+			details.requestHeaders.push({name: "Referer", value: details.url});
+		}
+		return {requestHeaders: details.requestHeaders};
+	}, {
+		urls: ["*://torcache.net/*"]
+	}, [
+		"requestHeaders",
+		"blocking"
+	]);
 })();

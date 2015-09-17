@@ -25,27 +25,10 @@ document.addEventListener('DOMNodeInserted', magnetize);
 chrome.extension.sendRequest({"action": "getStorageData"}, function (response) {
     if (!response || response["catchfrompage"] != "true") return;
 
-    var matches = response.linkmatches.split("~");
+    var matches = onTorrentClick.matches = response.linkmatches.split("~");
     matches.push("magnet:");
     matches.push("dht:");
-    document.addEventListener('click', function clickHandler(e) {
-        if (e.ctrlKey || e.shiftKey || e.altKey || e.button === 1) return;
-
-        var hrefElem = [].filter.call(e.path, function (el) { return el.href; })[0];
-        if (!hrefElem) return true;
-        if (!matches.some(function (m) { return hrefElem.href.match(new RegExp(m, "g")); })) return true;
-
-        e.preventDefault();
-        e.stopPropagation();
-        chrome.extension.sendRequest({action: "addTorrent", url: hrefElem.href}, function (res) {
-            window.document.body.focus();
-            if (res.navigate) {
-                window.location.href = hrefElem.href;
-            }
-        });
-        hrefElem.classList.add('nostrum-visited');
-        return false;
-    }, true);
+    document.addEventListener('click', onTorrentClick, true);
 });
 
 
@@ -56,6 +39,27 @@ chrome.extension.onRequest.addListener(function (request, sender, sendResponse) 
         sendResponse({});
     }
 });
+
+
+function onTorrentClick(e) {
+    if (e.ctrlKey || e.shiftKey || e.altKey || e.button === 1) return;
+
+    var hrefElem = [].filter.call(e.path, function (el) { return el.href; })[0];
+    if (!hrefElem) return true;
+    if (!onTorrentClick.matches.some(function (m) { return hrefElem.href.match(new RegExp(m, "g")); })) return true;
+
+    e.preventDefault();
+    e.stopPropagation();
+    chrome.extension.sendRequest({action: "addTorrent", url: hrefElem.href}, function (res) {
+        window.document.body.focus();
+        if (res.navigate) {
+            window.location.href = hrefElem.href;
+        }
+    });
+    hrefElem.classList.add('nostrum-visited');
+    return false;
+}
+onTorrentClick.matches = [];
 
 
 function magnetize(e) {
