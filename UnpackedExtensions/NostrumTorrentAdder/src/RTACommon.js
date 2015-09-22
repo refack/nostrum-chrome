@@ -80,7 +80,7 @@
                 var newURI = hash ? ('http://torcache.net/torrent/' + hash + '.torrent') : url;
                 server.check(hash).then(function (isDup) {
                     if (isDup) return {error: true, hash: hash};
-                    return $.ajax(newURI, {type: 'HEAD'});
+                    return $.get(newURI);
                 }).always(function (res) {
                     if (res && res.error && !res.success) return cb(res);
                     request.url = (!res || res.status < 300) ? newURI : request.url;
