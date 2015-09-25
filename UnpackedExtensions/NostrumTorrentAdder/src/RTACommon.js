@@ -75,26 +75,19 @@
             var url = request.url;
             request.name = (url.match(/\/([^\/]+.torrent)$/) || [])[1] || "file.torrent";
             if (url.substring(0, 4) !== "http") {
-                var reGroups = /:\/{0,2}([a-zA-Z0-9]{20,50})/.exec(url) || [];
-                var hash = reGroups[1] && reGroups[1].toUpperCase();
-                var newURI = hash ? ('http://torcache.net/torrent/' + hash + '.torrent') : url;
+                var reGroups = /:\/{0,2}([a-zA-Z0-9]{20})/.exec(url);
+                var hash = reGroups && reGroups[1] && reGroups[1].toUpperCase();
                 server.check(hash).then(function (isDup) {
                     if (isDup) return {error: true, hash: hash};
-                    return $.get(newURI);
-                }).always(function (res) {
-                    if (res && res.error && !res.success) return cb(res);
-                    request.url = (!res || res.status < 300) ? newURI : request.url;
+                    var torcacheURI = hash ? ('http://torcache.net/torrent/' + hash + '.torrent') : url;
+                    return $.ajax(torcacheURI, {dataType: 'blob'});
+                }).always(function (blob, status) {
+                    if (blob instanceof Blob && blob.type === 'text/html') return cb({navigate: true});
+                    request.blob = (blob && status === 'success') ? blob : null;
                     return server.add(request, cb);
                 });
             } else {
-                var def = $.Deferred();
-                var xhr = new XMLHttpRequest();
-                xhr.onload = function () { def.resolve(this.response); };
-                xhr.onerror = function () { def.reject(new Error("The server sent the following HTTP status " + this.status + ":\n" + this.statusText)); };
-                xhr.open('GET', url);
-                xhr.responseType = 'blob';
-                xhr.send();
-                def.done(function (blob) {
+                $.ajax(request.url, {dataType: 'blob'}).always(function (blob, status) {
                     if (blob instanceof Blob && blob.type === 'text/html') return cb({navigate: true});
                     request.blob = blob;
                     window.getInfohash(blob).then(

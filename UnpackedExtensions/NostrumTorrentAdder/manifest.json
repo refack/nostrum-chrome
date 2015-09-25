@@ -1,7 +1,8 @@
 {
   "background": {
     "scripts": [
-      "src/vendor/jquery-2.0.3.min.js",
+      "src/vendor/jquery-2.1.4.js",
+      "src/vendor/blob.js",
       "src/RTACommon.js",
       "src/config.js",
       "src/base64.js",
