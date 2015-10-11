@@ -75,7 +75,7 @@
             var url = request.url;
             request.name = (url.match(/\/([^\/]+.torrent)$/) || [])[1] || "file.torrent";
             if (url.substring(0, 4) !== "http") {
-                var reGroups = /:\/{0,2}([a-zA-Z0-9]{20})/.exec(url);
+                var reGroups = /:\/{0,2}([a-zA-Z0-9]{40})/.exec(url);
                 var hash = reGroups && reGroups[1] && reGroups[1].toUpperCase();
                 server.check(hash).then(function (isDup) {
                     if (isDup) return {error: true, hash: hash};
