@@ -18,10 +18,8 @@
 
 
         getTorrent: function (request, cb) {
-            var progressInterval;
-
             function cb1(res) {
-                var opts = {progress: 100};
+                var opts = {};
                 var nCB = $.noop;
                 if (res.navigate) {
                     opts.message = "Just HTML, navigating...";
@@ -40,8 +38,6 @@
                     opts.message = "Server didn't accept data:\n" + ((res.resp && res.resp.error) || res.statusText);
                 }
                 if (opts.title != 'Error') chrome.history.addUrl({url: request.url});
-                clearInterval(progressInterval);
-                progressInterval = 0;
                 chrome.notifications.update(nId, opts, function () {
                     setTimeout(chrome.notifications.clear.bind(chrome.notifications, nId, $.noop), 3000);
                     nCB();
@@ -49,23 +45,14 @@
             }
 
             var opts = {
-                type: "progress",
+                type: "basic",
                 title: "Fetch Torrent",
                 message: encodeURI(request.url),
                 iconUrl: "icons/up_alpha.png",
-                isClickable: true,
-                progress: 0
+                isClickable: true
             };
             var nId = String(Date.now());
             chrome.notifications.create(nId, opts, function () {
-                progressInterval = setInterval(function () {
-                    opts.progress += 30;
-                    var pOpt = {progress: (opts.progress / 10) % 100};
-                    chrome.notifications.update(nId, pOpt, $.noop);
-                }, 60);
-                setTimeout(function cleanup() {
-                    if (progressInterval) clearInterval(progressInterval);
-                }, 60 * 1000);
                 RTA._getTorrent(request, cb1);
             });
         },
@@ -83,7 +70,8 @@
                     return $.ajax(torcacheURI, {dataType: 'blob'});
                 }).always(function (blob, status) {
                     if (blob instanceof Blob && blob.type === 'text/html') return cb({navigate: true});
-                    request.blob = (blob && status === 'success') ? blob : null;
+                    if (blob && blob.error) return cb(blob);
+                    request.blob = blob;
                     return server.add(request, cb);
                 });
             } else {

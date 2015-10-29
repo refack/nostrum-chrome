@@ -1,10 +1,11 @@
+'use strict';
 $(document).ready(function(){
-	var tabCounter = 1;
-	
+    var tabCounter = 1;
+
 	registerGeneralSettingsEvents();
 
 	loadGeneralSettings();
-	
+
 	$(function() {
 		$("#configtabs").tabs();
 	});
@@ -12,7 +13,6 @@ $(document).ready(function(){
 	// new server type selection dialog // tab adding stuff
 	$(function() {
 		var tabTitle = $("#tab_title");
-		var tabClient = $("#tab_client");
 		var tabTemplate = "<li><a href='#{href}'>#{label}</a> <span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
 		var tabs = $("#serverstabs").tabs();
 
@@ -40,7 +40,7 @@ $(document).ready(function(){
 				form[0].reset();
 			}
 		});
-		
+
 		var form = dialog.find("form").submit(function() {
 			if(addTab(tabTitle.val())) {
 				dialog.dialog("close");
@@ -49,11 +49,12 @@ $(document).ready(function(){
 		});
 
 		function addTab(name, client, oldload) {
+			client = client || 'uTorrent';
 			// some input validation
-			var servers = JSON.parse(localStorage.getItem("servers"))
-			if(oldload !== true) {
-				for(var x in servers) {
-					if(servers[x].name == name || name === null || name === "") {
+			var servers = JSON.parse(localStorage.getItem("servers")) || [];
+			if(!oldload) {
+				for(let server of servers) {
+					if(server.name == name || name === null || name === "") {
 						alert("This name is already in use by another server, or invalid.");
 						return false;
 					}
@@ -62,7 +63,7 @@ $(document).ready(function(){
 
 			var id = "servertabs-" + tabCounter;
 			var li = $(tabTemplate.replace(/#\{href\}/g, "#" + id).replace(/#\{label\}/g, name));
-			var tabContentHtml = RTA.clients.config.getConfig(client || tabClient.val(), name);
+			var tabContentHtml = RTA.clients.config.getConfig(client, name);
 
 			tabs.find(".ui-tabs-nav").append(li);
 			tabs.append("<div id='" + id + "'><p>" + tabContentHtml + "</p></div>");
@@ -74,7 +75,7 @@ $(document).ready(function(){
 			}
 			tabCounter++;
 
-			$("input").bind("change keyup", function(event) {
+			$("input").bind("change keyup", function() {
 				saveServersSettings();
 			});
 
@@ -112,8 +113,7 @@ $(document).ready(function(){
 			addTab(server.name, server.client, true);
 
 			var mySettingInputs = $("#servertabs-" + (parseInt(i) + 1)).find("input").get();
-			for(var u in mySettingInputs) {
-				var mySettingInput = mySettingInputs[u];
+			for(let mySettingInput of mySettingInputs) {
 				if(server.hasOwnProperty(mySettingInput.name)) {
 					switch(mySettingInput.type) {
 						case "checkbox":
@@ -129,15 +129,27 @@ $(document).ready(function(){
 });
 
 function loadGeneralSettings() {
-	var e = document.querySelectorAll("#linksfoundindicator,#showpopups,#popupduration,#catchfromcontextmenu,#catchfrompage,#linkmatches,#catchfromnewtab")
-	for (key in e) {
-		getSetting(e[key]);
-	}
+	var elems = document.querySelectorAll("#linksfoundindicator,#showpopups,#popupduration,#catchfromcontextmenu,#catchfrompage,#linkmatches,#catchfromnewtab");
+	[].forEach.call(elems, getSetting);
 
 	// load matches
-	loadMatches();
-	
-	// set visibility
+    var newSelEl = document.createElement("select");
+    newSelEl.setAttribute("id", "linkmatches");
+    newSelEl.setAttribute("multiple", "multiple");
+    newSelEl.setAttribute("size", "5");
+    (localStorage["linkmatches"] || "")
+        .split('\r\n')
+        .filter(m => m.length)
+        .forEach(k => {
+            var newEl = document.createElement("option");
+            newEl.text = k;
+            newSelEl.appendChild(newEl);
+        });
+    var selEl = document.getElementById("linkmatches");
+    selEl.parentNode.appendChild(newSelEl);
+    selEl.parentNode.removeChild(selEl);
+
+    // set visibility
 	flipVisibility("showpopups", "popupduration");
 	flipVisibility("catchfrompage", "linkmatches");
 }
@@ -154,41 +166,20 @@ function getSetting(e) {
 	if(e.type == "text" || e.type == "password") {
 		document.getElementById(e.id).value = (localStorage[e.id] == undefined) ? "" : localStorage[e.id];
 	} else if(e.type == "checkbox") {
-		document.getElementById(e.id).checked = (localStorage[e.id] == "true") ? true : false;
+		document.getElementById(e.id).checked = (localStorage[e.id] === "true");
 	}
 }
 
 function saveMatches() {
 	var opts = document.getElementById("linkmatches").getElementsByTagName("option");
-	var destStr = ""; var i=0;
-	for(key in opts)
-		if(opts[key].text) {
-			var sep = (i++ == 0) ? "" : "~";
-			destStr += sep + opts[key].text;
-		}
-	localStorage["linkmatches"] = destStr;
-}
-
-function loadMatches() {
-	var newSelEl = document.createElement("select");
-	newSelEl.setAttribute("id", "linkmatches");
-	newSelEl.setAttribute("multiple", "multiple");
-	newSelEl.setAttribute("size", "5");
-	if(localStorage["linkmatches"] != "")
-		for(key in localStorage["linkmatches"].split("~")) {
-			var newEl = document.createElement("option");
-			newEl.text = localStorage["linkmatches"].split("~")[key];
-			newSelEl.appendChild(newEl);
-		}
-	var selEl = document.getElementById("linkmatches");
-	selEl.parentNode.appendChild(newSelEl);
-	selEl.parentNode.removeChild(selEl);
+	var destStr = [].map.call(opts, o => o.text);
+	localStorage["linkmatches"] = destStr.join('\r\n');
 }
 
 function addMatch() {
 	var newMatch = prompt("Enter a partial string of a link that should be caught by the extension","");
 	if(!newMatch) return;
-	
+
 	var newOpt = new Option(newMatch);
 	document.getElementById('linkmatches').appendChild(newOpt);
 	saveMatches();
@@ -205,66 +196,69 @@ function deleteMatches() {
 
 Storage.prototype.setObject = function(key, val) {
 	this.setItem(key, JSON.stringify(val));
-}
+};
+
+
 Storage.prototype.getObject = function(key) {
 	var value = this.getItem(key);
     return value && JSON.parse(value);
-}
+};
+
 
 function registerGeneralSettingsEvents() {
 	document.querySelector("#linksfoundindicator").onchange = function() {
 		setSetting(this, (this.checked) ? 'true' : 'false');
 	};
-	
+
 	document.querySelector("#showpopups").onchange = function() {
 		setSetting(this, (this.checked) ? 'true' : 'false');
 	};
 	document.querySelector("#showpopups").onclick = function() {
 		flipVisibility(this.id, 'popupduration');
 	};
-	
+
 	document.querySelector("#popupduration").onkeyup = function() {
 		setSetting(this, this.value);
 	};
-	
+
 	document.querySelector("#notificationtest").onclick = function() {
-		var opts = { 
-					type: "basic", 
-					iconUrl: "icons/BitTorrent128.png", 
+		var opts = {
+					type: "basic",
+					iconUrl: "icons/BitTorrent128.png",
 					title: "This is a test notification",
 					priority: 0,
 					message: "This is a test message!"
 					};
 		var id = Math.floor(Math.random() * 99999) + "";
-		
+
 		chrome.notifications.create(id, opts, function(myId) { id = myId });
-		
+
 		setTimeout(function(){chrome.notifications.clear(id, function() {});}, localStorage['popupduration']);
 	};
-	
+
 	document.querySelector("#catchfromcontextmenu").onchange = function() {
 		setSetting(this, (this.checked) ? 'true' : 'false');
 	};
-	
+
 	document.querySelector("#catchfrompage").onchange = function() {
 		setSetting(this, (this.checked) ? 'true' : 'false');
 	};
 	document.querySelector("#catchfrompage").onclick = function() {
 		flipVisibility(this.id, 'linkmatches');
 	};
-	
+
 	document.querySelector("#catchfromnewtab").onchange = function() {
 		setSetting(this, (this.checked) ? 'true' : 'false');
 	};
-	
+
 	document.querySelector("#addfilterbtn").onclick = function() {
 		addMatch();
 	};
-	
+
 	document.querySelector("#delfilterbtn").onclick = function() {
 		deleteMatches();
 	};
-	
+
 	document.querySelector("#showfiltersbtn").onclick = function() {
 		alert(localStorage['linkmatches']);
 	};
@@ -299,6 +293,6 @@ function saveServersSettings() {
 	localStorage.setItem("servers", JSON.stringify(servers))
 
 	chrome.extension.sendRequest({"action": "constructContextMenu"});
-	
+
 	return servers;
 }
