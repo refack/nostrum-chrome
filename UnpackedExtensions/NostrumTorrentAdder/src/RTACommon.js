@@ -49,7 +49,8 @@
                 title: "Fetch Torrent",
                 message: encodeURI(request.url),
                 iconUrl: "icons/up_alpha.png",
-                isClickable: true
+                isClickable: true,
+                priority: 10
             };
             var nId = String(Date.now());
             chrome.notifications.create(nId, opts, function () {
@@ -67,9 +68,10 @@
                 server.check(hash).then(function (isDup) {
                     if (isDup) return {error: true, hash: hash};
                     var torcacheURI = hash ? ('http://torcache.net/torrent/' + hash + '.torrent') : url;
-                    return $.ajax(torcacheURI, {dataType: 'blob'});
+                    return $.ajax(torcacheURI, {dataType: 'blob', timeout: 10000});
                 }).always(function (blob, status) {
                     if (blob instanceof Blob && blob.type === 'text/html') return cb({navigate: true});
+                    if (blob instanceof Object && (status == 'error' || status == 'timeout')) return server.add(request, cb);
                     if (blob && blob.error) return cb(blob);
                     request.blob = blob;
                     return server.add(request, cb);
@@ -91,23 +93,6 @@
                     );
                 });
             }
-        },
-
-
-        displayResponse: function (title, message, isError) {
-            if (localStorage.getItem("showpopups") !== "true") return;
-            var timeOut = localStorage.getItem('popupduration');
-            var opts = {
-                type: "progress",
-                title: title,
-                message: message,
-                iconUrl: "icons/BitTorrent128" + (isError ? "-red.png" : ".png"),
-                progress: 42
-            };
-            var id = String(Math.floor(Math.random() * 99999));
-            chrome.notifications.create(id, opts, function (myId) {
-                setTimeout(function () { chrome.notifications.clear(myId, $.noop); }, timeOut);
-            });
         },
 
 

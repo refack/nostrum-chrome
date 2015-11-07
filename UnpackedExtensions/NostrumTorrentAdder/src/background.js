@@ -62,7 +62,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 		}
 		return {requestHeaders: details.requestHeaders};
 	}, {
-		urls: ["*://torcache.net/*"]
+		urls: ["*://torcache.net/torrent/*"]
 	}, [
 		"requestHeaders",
 		"blocking"
