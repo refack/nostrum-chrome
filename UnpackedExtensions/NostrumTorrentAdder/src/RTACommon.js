@@ -32,6 +32,10 @@
                     opts.title = "Duplicate";
                     opts.iconUrl = "icons/ex_alpha.png";
                     opts.message = "Found a torrent with this hash on server:\n\n" + res.hash;
+                } else if (res.resp) {
+                    opts.title = res.resp.title || "Error";
+                    opts.iconUrl = "icons/ex_alpha.png";
+                    opts.message = res.resp.error || "Server Error";
                 } else {
                     opts.title = "Error";
                     opts.iconUrl = "icons/ex_alpha.png";
@@ -210,6 +214,9 @@
                 return $.ajax(params);
             }).always(function (resp, textStatus) {
                 if (textStatus !== 'success') {
+                    if (resp.statusText === 'error' && resp.status === 0) {
+                        return cb({error: true, title: 'Server Down', resp: {error: 'Server Down'}});
+                    }
                     var err = {error: "Server responded with HTTP code:\n" + resp.status + ' - ' + textStatus + ": " + resp.responseText};
                     return cb({error: true, title: "Failure", resp: err});
                 } else if (!resp) {
