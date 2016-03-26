@@ -15,7 +15,8 @@
         return true;
     }
 
-    if (~location.href.indexOf('https://plus.google.com/hangouts/')) return;
+    if (location.href.includes('https://plus.google.com/hangouts/')) return;
+    if (location.href.includes('photos.google.com')) return;
     if (document.contentType.substr(0, 4) !== 'text') return;
     document.documentElement.addEventListener('DOMNodeInserted', onHead);
 })(document, chrome, location);

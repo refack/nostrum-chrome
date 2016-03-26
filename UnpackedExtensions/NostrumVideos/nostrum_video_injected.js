@@ -2,8 +2,9 @@
 /*global window,document,location,EventTarget,MutationObserver */
 (function (window) {
 
-    if (~location.href.indexOf('mrskin.com')) {
+    if (~location.href.indexOf('mrskin.com') || ~location.href.indexOf('mako.co.il')) {
         Object.defineProperty(window.navigator, 'plugins', {value: []});
+        Object.defineProperty(window.navigator, 'userAgent', {value: "Mozilla/5.0 (iPad; CPU OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53"});
     }
 
     window.NodeList.prototype.toArray = function toArray() { return Array.prototype.slice.call(this); };
