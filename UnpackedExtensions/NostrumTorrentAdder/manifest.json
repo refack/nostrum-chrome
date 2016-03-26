@@ -5,7 +5,7 @@
       "src/vendor/blob.js",
       "src/RTACommon.js",
       "src/config.js",
-      "src/base64.js",
+      "src/stringview.js",
       "src/bedecode.js",
       "src/background.js"
     ]
