@@ -128,7 +128,7 @@ function flip_chars() {
 
 
 function flip_chord(e) {
-    if (e.altKey && e.ctrlKey && e.keyCode == 69) {
+    if (e.altKey && e.shiftKey && e.keyCode == 69) {
         flip_chars();
     }
 }
