@@ -1,22 +1,27 @@
 'use strict';
-/*global document,chrome,location */
-(function (document, chrome, location) {
-    function onHead(e) {
-        var head = e.currentTarget.querySelector('head');
-        if (!head) return true;
-        if (document.getElementById('__nostrum_video_injected')) return true;
-        document.documentElement.removeEventListener(e.type, onHead);
+/*global window */
+(function (document, extension, href, contentType) {
+    if (window.parent !== window && window.innerWidth * window.innerHeight <= 10) return;
+    if (href.includes('https://plus.google.com/hangouts/')) return;
+    if (href.includes('photos.google.com')) return;
+    if (contentType.substr(0, 4) !== 'text') return console.info('url ' + href + ' not text but ' + contentType);
 
-        var scp_injector = document.createElement('script');
-        scp_injector.setAttribute('id', '__nostrum_video_injected');
-        scp_injector.setAttribute('src', chrome.extension.getURL('nostrum_video_injected.js'));
-        scp_injector.dataset.iconurl = chrome.extension.getURL('nostrum_video_ico_trim.png');
-        head.insertBefore(scp_injector, head.firstChild);
+    function onHead(e) {
+        this && e && e.type && this.removeEventListener(e.type, onHead);
+
+        const NOSTRUM_ID = '__nostrum_video_injected';
+        if (document.getElementById(NOSTRUM_ID)) return true;
+        const scp_injector = document.createElement('script');
+        scp_injector.setAttribute('id', NOSTRUM_ID);
+        scp_injector.setAttribute('src', extension.getURL('nostrum_video_injected.js'));
+        scp_injector.dataset.iconurl = extension.getURL('nostrum_video_ico_trim.png');
+        document.head.insertBefore(scp_injector, document.head.firstChild);
         return true;
     }
 
-    if (location.href.includes('https://plus.google.com/hangouts/')) return;
-    if (location.href.includes('photos.google.com')) return;
-    if (document.contentType.substr(0, 4) !== 'text') return;
-    document.documentElement.addEventListener('DOMNodeInserted', onHead);
-})(document, chrome, location);
+    if (document.head) {
+        onHead();
+    } else {
+        document.documentElement.addEventListener('DOMNodeInserted', onHead);
+    }
+})(window.document, window.chrome.extension, window.location.href, window.document.contentType);
