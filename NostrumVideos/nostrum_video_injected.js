@@ -1,10 +1,10 @@
 'use strict';
 /*global window */
-(function (global, href, document, documentElement) {
+(function (global, location, document, documentElement) {
     if (
-        href.includes('&list=') && href.includes('&index=') ||
-        href.includes('plus.google.com/hangouts/') ||
-        href.includes('photos.google.com')
+        location.href.includes('&list=') && location.href.includes('&index=') ||
+        location.href.includes('plus.google.com/hangouts/') ||
+        location.hostname.includes('photos.google.com')
     ) {
         global.__nostrum_no_remove = true;
         global.__global_clicked = true;
@@ -65,7 +65,7 @@
 
         // removeBlockers({target: e.target.documentElement});
 
-        if (!href.includes('//www.youtube')) return;
+        if (!location.hostname.includes('www.youtube')) return;
 
         manipulateYouTube();
         parseUTube({target: document}, true);
@@ -125,6 +125,8 @@
             } catch (e) {}
         }
         elem.autoplay = false;
+        elem.loop = false;
+        elem.controls = true;
         try {
             elem.pause();
         } catch (e) {}
@@ -361,7 +363,11 @@
 
 
     function manipulate_plugins() {
-        if (!href.includes('mrskin.com') && !href.includes('mako.co.il')) return;
+        if (!(
+            location.hostname.includes('mrskin.com')
+            || location.hostname.includes('mako.co.il')
+            || location.hostname.includes('cnn.com')
+        )) return;
         Object.defineProperty(global.navigator, 'plugins', {value: []});
         Object.defineProperty(global.navigator, 'userAgent', {value: "Mozilla/5.0 (iPad; CPU OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53"});
     }
@@ -373,4 +379,4 @@
             r1 = c => sf((c <= "Z" ? 90 : 122) >= (c = cc(c) + 13) ? c : c - 26);
         return "hey_rapbqrq_szg_fgernz_znc".replace(/[a-zA-Z]/g, r1);
     }
-})(window, window.location.href, window.document, window.document.documentElement);
+})(window, window.location, window.document, window.document.documentElement);
